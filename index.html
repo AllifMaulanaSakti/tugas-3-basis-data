@@ -1,0 +1,1918 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Praktikum Transaksi & Basis Data Terdistribusi MSIM4206</title>
+    <style>
+        :root {
+            --primary-color: #1e5a8e;
+            --secondary-color: #2196F3;
+            --success-color: #4CAF50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --bg-light: #f5f5f5;
+            --border-color: #ddd;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            background: var(--bg-light);
+            padding: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .content {
+            padding: 30px;
+            max-height: 800px;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section h2 {
+            color: var(--primary-color);
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: var(--secondary-color);
+            font-size: 1.3em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .script-content {
+            background: #f9f9f9;
+            border-left: 4px solid var(--primary-color);
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+            font-size: 0.95em;
+            line-height: 1.8;
+        }
+
+        .script-content strong {
+            color: var(--primary-color);
+            font-size: 1.05em;
+        }
+
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning {
+            background: #fff3e0;
+            border-left: 4px solid var(--warning-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .step {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: var(--secondary-color);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .step-title {
+            font-weight: bold;
+            color: var(--primary-color);
+            font-size: 1.05em;
+        }
+
+        .step-desc {
+            margin-top: 10px;
+            color: #555;
+        }
+
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+
+        .code-keyword { color: #66d9ef; }
+        .code-string { color: #e6db74; }
+        .code-function { color: #a1efe4; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        table th {
+            background: var(--secondary-color);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        table tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+
+        .control-panel {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-print {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+        }
+
+        .output-display {
+            background: #2d2d2d;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            min-height: 100px;
+            overflow-x: auto;
+        }
+
+        footer {
+            background: var(--bg-light);
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background: var(--border-color);
+            border-radius: 5px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary-color), var(--success-color));
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .reference-box {
+            background: #f0f7ff;
+            border: 2px solid var(--secondary-color);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .reference-box strong {
+            color: var(--primary-color);
+        }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8em; }
+            .navigation { flex-direction: column; }
+            .nav-btn { width: 100%; }
+            .content { max-height: 600px; }
+        }
+
+        .success-badge {
+            display: inline-block;
+            background: var(--success-color);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Praktikum Transaksi & Basis Data Terdistribusi</h1>
+            <p>MSIM4206 - Program Studi Sistem Informasi Universitas Terbuka</p>
+        </header>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('intro')">🎯 Pendahuluan</button>
+            <button class="nav-btn" onclick="showSection('section1')">💾 Konsep Transaksi</button>
+            <button class="nav-btn" onclick="showSection('section2')">✔️ Commit</button>
+            <button class="nav-btn" onclick="showSection('section3')">↩️ Rollback</button>
+            <button class="nav-btn" onclick="showSection('section4')">🔖 Savepoint</button>
+            <button class="nav-btn" onclick="showSection('section5')">⚡ Trigger</button>
+            <button class="nav-btn" onclick="showSection('section6')">🔄 Replikasi</button>
+            <button class="nav-btn" onclick="showSection('pelaporan')">📝 Pelaporan</button>
+        </div>
+
+        <div class="content">
+            <!-- SECTION: PENDAHULUAN -->
+            <div id="intro" class="section active">
+                <h2>🎯 Pendahuluan Praktikum</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 10%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Assalamualaikum Warahmatullahi Wabarakatuh</strong><br>
+                    Selamat pagi/siang/sore kepada semua dosen pengajar, teman-teman mahasiswa, dan semua yang hadir di sini.
+                </div>
+
+                <div class="script-content">
+                    Nama saya <strong>Allif Maulana Sakti</strong>, saya adalah mahasiswa Program Studi Sistem Informasi dari Universitas Terbuka. Pada kesempatan kali ini, saya akan melakukan demonstrasi praktikum untuk mata kuliah <strong>Transaksi dan Basis Data Terdistribusi (MSIM4206)</strong>.
+                </div>
+
+                <div class="note">
+                    <strong>📌 Tujuan Praktikum:</strong><br>
+                    Memahami konsep transaksi dan basis data terdistribusi secara praktis melalui implementasi di MySQL dengan XAMPP dan konfigurasi replikasi master-slave menggunakan Windows 10 dan Ubuntu.
+                </div>
+
+                <h3>📋 Cakupan Demonstrasi</h3>
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Pengenalan Konsep Transaksi dan ACID Properties</span>
+                    <div class="step-desc">Penjelasan tentang Atomicity, Consistency, Isolation, dan Durability</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Praktikum Transaksi MySQL</span>
+                    <div class="step-desc">Implementasi Commit, Rollback, Savepoint, dan Trigger pada database Rumah Sakit</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Basis Data Terdistribusi</span>
+                    <div class="step-desc">Konfigurasi replikasi master-slave antara Windows 10 dan Ubuntu</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Pengujian dan Validasi</span>
+                    <div class="step-desc">Memverifikasi bahwa semua fitur berfungsi dengan baik</div>
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('section1')">Lanjut ke Konsep Transaksi →</button>
+                </div>
+            </div>
+
+            <!-- SECTION 1: KONSEP TRANSAKSI -->
+            <div id="section1" class="section">
+                <h2>💾 Konsep Dasar Transaksi dan ACID Properties</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 20%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Baik, saya akan mulai dengan menjelaskan konsep dasar transaksi dalam basis data.</strong>
+                </div>
+
+                <div class="script-content">
+                    Transaksi adalah sebuah rangkaian operasi basis data yang dilakukan sebagai satu kesatuan logis. Transaksi memiliki karakteristik penting yang disebut dengan <strong>ACID Properties</strong>. Mari kita jelaskan satu persatu:
+                </div>
+
+                <h3>🔐 ACID Properties</h3>
+
+                <div class="reference-box">
+                    <strong>A - Atomicity (Atomisitas):</strong> Sebuah transaksi harus dilaksanakan seluruhnya atau tidak sama sekali. Tidak ada kondisi transaksi yang sebagian selesai. Jadi, jika ada kegagalan di tengah jalan, seluruh transaksi akan dibatalkan dan database akan kembali ke keadaan semula. Konsep ini seperti "semua atau tidak sama sekali" (all or nothing).
+                </div>
+
+                <div class="reference-box">
+                    <strong>C - Consistency (Konsistensi):</strong> Data di dalam basis data harus tetap bersifat konsisten. Artinya, transaksi harus membawa database dari satu state yang konsisten ke state konsisten lainnya. Semua aturan integritas database harus terpenuhi sebelum dan sesudah transaksi dijalankan. Tidak boleh ada inkonsistensi data.
+                </div>
+
+                <div class="reference-box">
+                    <strong>I - Isolation (Isolasi):</strong> Setiap transaksi harus terisolasi dan tidak boleh diganggu oleh transaksi lain. Artinya, saat satu transaksi sedang berjalan, transaksi lain tidak boleh melihat atau mempengaruhi data yang sedang diproses. Setiap transaksi harus berjalan independen tanpa interferensi dari transaksi lain.
+                </div>
+
+                <div class="reference-box">
+                    <strong>D - Durability (Daya Tahan/Persistensi):</strong> Setelah transaksi selesai dan commit, data harus tetap persisten dan tahan terhadap kegagalan sistem. Data yang telah di-commit harus tersimpan dengan aman di disk dan tidak akan hilang meskipun terjadi kegagalan atau crash pada sistem.
+                </div>
+
+                <h3>🔄 State Transaksi</h3>
+                <div class="script-content">
+                    Dalam sebuah transaksi, terdapat 5 state yang mungkin terjadi:
+                </div>
+
+                <table>
+                    <tr>
+                        <th>No</th>
+                        <th>State</th>
+                        <th>Keterangan</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><strong>Active</strong></td>
+                        <td>Transaksi sedang berjalan dan melaksanakan operasi</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>Partially Committed</strong></td>
+                        <td>Transaksi telah menyelesaikan eksekusi tetapi belum disimpan ke database</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>Committed</strong></td>
+                        <td>Transaksi berhasil selesai dan perubahan telah disimpan ke database</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>Failed</strong></td>
+                        <td>Transaksi mengalami kegagalan selama eksekusi</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>Aborted</strong></td>
+                        <td>Transaksi dibatalkan dan database dikembalikan ke state sebelum transaksi dimulai</td>
+                    </tr>
+                </table>
+
+                <div class="note">
+                    <strong>💡 Penting:</strong> Dalam praktikum ini, kami akan menggunakan basis data MySQL dengan storage engine InnoDB yang mendukung transaksi ACID penuh.
+                </div>
+
+                <h3>🛠️ Perintah Transaksi dalam MySQL</h3>
+                <div class="script-content">
+                    MySQL menyediakan beberapa perintah untuk mengelola transaksi:
+                </div>
+
+                <table>
+                    <tr>
+                        <th>Perintah</th>
+                        <th>Fungsi</th>
+                    </tr>
+                    <tr>
+                        <td><strong>BEGIN / START TRANSACTION</strong></td>
+                        <td>Memulai sebuah transaksi baru</td>
+                    </tr>
+                    <tr>
+                        <td><strong>COMMIT</strong></td>
+                        <td>Menyimpan dan mengakhiri transaksi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ROLLBACK</strong></td>
+                        <td>Membatalkan transaksi dan mengembalikan data ke state sebelumnya</td>
+                    </tr>
+                    <tr>
+                        <td><strong>SAVEPOINT</strong></td>
+                        <td>Membuat titik penyimpanan dalam transaksi</td>
+                    </tr>
+                </table>
+
+                <div class="warning">
+                    <strong>⚠️ Catatan Penting:</strong> Pastikan tabel-tabel yang digunakan menggunakan storage engine InnoDB. Jika menggunakan MyISAM, transaksi tidak akan bekerja. Untuk mengecek: SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME='nama_tabel';
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('section2')">Lanjut ke Commit →</button>
+                </div>
+            </div>
+
+            <!-- SECTION 2: COMMIT -->
+            <div id="section2" class="section">
+                <h2>✔️ Praktikum 1: Perintah COMMIT</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 30%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Sekarang kita akan mempraktikkan perintah COMMIT. Mari kita lihat layar saya.</strong>
+                </div>
+
+                <h3>📝 Penjelasan Commit</h3>
+                <div class="script-content">
+                    COMMIT adalah perintah yang menandakan bahwa transaksi telah selesai dilaksanakan dan semua perubahan data menjadi permanen di database. Artinya, setelah COMMIT dijalankan, data tidak bisa lagi dibatalkan dengan ROLLBACK.
+                </div>
+
+                <div class="reference-box">
+                    <strong>Karakteristik COMMIT:</strong><br>
+                    • Membuat perubahan data menjadi permanen<br>
+                    • Melepaskan lock pada data yang digunakan<br>
+                    • Menyelesaikan transaksi<br>
+                    • Data yang di-commit akan terlihat oleh transaksi lain
+                </div>
+
+                <h3>🔧 Langkah-Langkah Praktik</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Aktifkan Apache dan MySQL di XAMPP</span>
+                    <div class="step-desc">Buka control XAMPP, pastikan Apache dan MySQL dalam status hijau/Running</div>
+                </div>
+
+                <div class="script-content">
+                    Seperti yang terlihat di layar saya, saya telah mengklik tombol Start pada control XAMPP. Saat ini Apache dan MySQL sudah berstatus Running dengan indikator warna hijau.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Akses phpMyAdmin</span>
+                    <div class="step-desc">Buka browser dan ketikkan URL: http://localhost/phpmyadmin</div>
+                </div>
+
+                <div class="script-content">
+                    Saya sekarang membuka browser Mozilla Firefox dan menuju ke phpMyAdmin. Halaman login phpMyAdmin sudah tampil. Pada saat ini, saya menggunakan default username root tanpa password.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Pilih Database Rumah Sakit</span>
+                    <div class="step-desc">Klik pada database "rumahsakit" di panel sebelah kiri</div>
+                </div>
+
+                <div class="script-content">
+                    Database rumah sakit sudah tersedia dengan tabel-tabel seperti pasien, dokter, rawat inap, dan lainnya. Semuanya sudah menggunakan storage engine InnoDB sehingga mendukung transaksi.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Buat Store Procedure untuk Transaksi 1 (Commit)</span>
+                    <div class="step-desc">Pergi ke menu Routines → Add Routine</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya akan membuat store procedure yang berisi perintah INSERT tanpa COMMIT. Saya klik menu Routines, kemudian pilih "Add Routine". Di sini saya akan membuat store procedure dengan nama "transaksi1".
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">BEGIN</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">INSERT INTO</span> pasien <br>
+                    &nbsp;&nbsp;(<span class="code-string">id_pasien</span>, <span class="code-string">nama_pasien</span>, <span class="code-string">alamat_pasien</span>, <span class="code-string">jenis_kelamin</span>)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">VALUES</span> (<span class="code-string">5</span>, <span class="code-string">'Tito'</span>, <span class="code-string">'Jl Pakis haji no 25'</span>, <span class="code-string">1</span>);<br>
+                    <span class="code-keyword">END</span>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya mengisi nama routine dengan "transaksi1" dan memasukkan kode SQL di atas ke dalam definition. Setelah itu, saya klik tombol Go untuk menyimpan routine ini.
+                </div>
+
+                <div class="note">
+                    <strong>📌 Perhatian:</strong> Store procedure ini belum memiliki perintah COMMIT, jadi perubahan data tidak akan tersimpan ke database.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Jalankan Transaksi 1 dengan CALL</span>
+                    <div class="step-desc">Buka menu SQL dan ketik: CALL transaksi1;</div>
+                </div>
+
+                <div class="script-content">
+                    Saya membuka menu SQL dan memasukkan perintah "CALL transaksi1;". Setelah mengklik Go, terlihat bahwa data dengan id_pasien 5 nama Tito telah ditampilkan di layar, artinya perintah berhasil dijalankan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Verifikasi Data di Tabel Pasien</span>
+                    <div class="step-desc">Klik pada tabel "pasien" untuk melihat isi data</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya membuka tabel pasien untuk melihat apakah data dengan id_pasien 5 sudah masuk ke database. Seperti yang terlihat di layar, data tersebut <strong>TIDAK ADA</strong> di tabel pasien! Ini terjadi karena dalam transaksi1, kami tidak menggunakan perintah COMMIT.
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Kesimpulan Penting:</strong> Walaupun perintah INSERT berhasil dieksekusi dan menampilkan output, data tidak akan masuk ke database jika belum di-COMMIT. Ini menunjukkan pentingnya COMMIT untuk membuat perubahan menjadi permanen.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">7</span>
+                    <span class="step-title">Buat Transaksi 2 dengan COMMIT</span>
+                    <div class="step-desc">Buat store procedure baru dengan nama "transaksi2" yang menyertakan COMMIT</div>
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">BEGIN</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">INSERT INTO</span> pasien <br>
+                    &nbsp;&nbsp;(<span class="code-string">id_pasien</span>, <span class="code-string">nama_pasien</span>, <span class="code-string">alamat_pasien</span>, <span class="code-string">jenis_kelamin</span>)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">VALUES</span> (<span class="code-string">6</span>, <span class="code-string">'Popi'</span>, <span class="code-string">'Jl Merdeka no 10'</span>, <span class="code-string">2</span>);<br>
+                    &nbsp;&nbsp;<span class="code-keyword">COMMIT</span>;<br>
+                    <span class="code-keyword">END</span>
+                </div>
+
+                <div class="script-content">
+                    Kali ini saya menambahkan perintah COMMIT di akhir dari INSERT. Saya membuat routine baru dengan nama "transaksi2" dan menyimpannya.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">8</span>
+                    <span class="step-title">Jalankan Transaksi 2</span>
+                    <div class="step-desc">Buka menu SQL dan ketik: CALL transaksi2;</div>
+                </div>
+
+                <div class="script-content">
+                    Saya menjalankan perintah "CALL transaksi2;" di menu SQL. Output menunjukkan bahwa data dengan id_pasien 6 nama Popi berhasil ditampilkan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">9</span>
+                    <span class="step-title">Verifikasi Data Setelah COMMIT</span>
+                    <div class="step-desc">Buka kembali tabel pasien untuk melihat hasilnya</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya membuka tabel pasien lagi untuk verifikasi. <strong>SEKARANG DATA ADA!</strong> Data dengan id_pasien 6 nama Popi sudah muncul di tabel pasien. Ini membuktikan bahwa COMMIT berhasil menyimpan data ke database secara permanen.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✔️ Kesimpulan COMMIT:</strong><br>
+                    • COMMIT membuat perubahan data menjadi permanen<br>
+                    • Tanpa COMMIT, data tidak akan masuk ke database<br>
+                    • Setelah COMMIT, data tidak bisa lagi di-ROLLBACK<br>
+                    • COMMIT menyelesaikan transaksi dan melepaskan lock
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('section3')">Lanjut ke Rollback →</button>
+                </div>
+            </div>
+
+            <!-- SECTION 3: ROLLBACK -->
+            <div id="section3" class="section">
+                <h2>↩️ Praktikum 2: Perintah ROLLBACK</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 40%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Sekarang kita akan mempelajari perintah ROLLBACK yang berguna untuk membatalkan perubahan data.</strong>
+                </div>
+
+                <h3>📝 Penjelasan Rollback</h3>
+                <div class="script-content">
+                    ROLLBACK adalah perintah yang digunakan untuk membatalkan transaksi yang sedang berjalan dan mengembalikan database ke state sebelum transaksi dimulai. Pernyataan ROLLBACK hanya berpengaruh jika transaksi belum di-COMMIT. Setelah COMMIT, ROLLBACK tidak bisa lagi membatalkan perubahan.
+                </div>
+
+                <div class="reference-box">
+                    <strong>Karakteristik ROLLBACK:</strong><br>
+                    • Membatalkan semua perubahan dalam transaksi yang belum di-COMMIT<br>
+                    • Mengembalikan database ke state awal sebelum transaksi<br>
+                    • Melepaskan lock pada data yang digunakan<br>
+                    • Hanya bekerja untuk transaksi yang belum di-COMMIT
+                </div>
+
+                <h3>🔧 Langkah-Langkah Praktik</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Buat Transaksi 3 dengan ROLLBACK</span>
+                    <div class="step-desc">Buat store procedure yang melakukan UPDATE dengan ROLLBACK</div>
+                </div>
+
+                <div class="script-content">
+                    Saya akan membuat transaksi 3 yang melakukan UPDATE pada nama pasien dengan id_pasien 3 dari nama "Popi" menjadi "Danar". Namun, sebelum COMMIT, saya akan menggunakan ROLLBACK sehingga perubahan akan dibatalkan.
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">BEGIN</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">UPDATE</span> pasien <br>
+                    &nbsp;&nbsp;<span class="code-keyword">SET</span> <span class="code-string">nama_pasien</span> = <span class="code-string">'Danar'</span> <br>
+                    &nbsp;&nbsp;<span class="code-keyword">WHERE</span> <span class="code-string">id_pasien</span> = <span class="code-string">3</span>;<br>
+                    &nbsp;&nbsp;<span class="code-keyword">ROLLBACK</span>;<br>
+                    &nbsp;&nbsp;<span class="code-keyword">COMMIT</span>;<br>
+                    <span class="code-keyword">END</span>
+                </div>
+
+                <div class="script-content">
+                    Saya membuat routine baru dengan nama "transaksi3" dan memasukkan kode SQL di atas. Perhatikan bahwa ada ROLLBACK sebelum COMMIT, artinya UPDATE akan dibatalkan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Jalankan Transaksi 3</span>
+                    <div class="step-desc">Buka menu SQL dan ketik: CALL transaksi3;</div>
+                </div>
+
+                <div class="script-content">
+                    Saya menjalankan "CALL transaksi3;" dan transaksi berhasil dijalankan. Tidak ada error yang muncul.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Verifikasi Data Setelah Rollback</span>
+                    <div class="step-desc">Buka tabel pasien dan cek data dengan id_pasien 3</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya membuka tabel pasien dan mengecek data dengan id_pasien 3. <strong>Nama pasien masih "Popi", TIDAK berubah menjadi "Danar"!</strong> Ini membuktikan bahwa ROLLBACK berhasil membatalkan UPDATE yang telah dilakukan.
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Penting:</strong> Dalam praktik nyata, biasanya ROLLBACK digunakan ketika terjadi error atau kondisi yang tidak diinginkan selama transaksi, bukan selalu ditambahkan di dalam kode.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Buat Transaksi 4 untuk Contoh Kompleks</span>
+                    <div class="step-desc">Menunjukkan ROLLBACK yang hanya membatalkan bagian tertentu</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya akan membuat transaksi 4 yang lebih kompleks. Dalam transaksi ini, saya akan:
+                    1. Melakukan INSERT data baru pasien dengan id_pasien 7
+                    2. Melakukan ROLLBACK untuk membatalkan INSERT
+                    3. Melakukan UPDATE pada pasien id_pasien 3 menjadi "Septin"
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">BEGIN</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">INSERT INTO</span> pasien <br>
+                    &nbsp;&nbsp;(<span class="code-string">id_pasien</span>, <span class="code-string">nama_pasien</span>, <span class="code-string">alamat_pasien</span>, <span class="code-string">jenis_kelamin</span>)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">VALUES</span> (<span class="code-string">7</span>, <span class="code-string">'Adit'</span>, <span class="code-string">'Jl Sudirman'</span>, <span class="code-string">1</span>);<br>
+                    &nbsp;&nbsp;<span class="code-keyword">ROLLBACK</span>;<br>
+                    &nbsp;&nbsp;<span class="code-keyword">UPDATE</span> pasien <br>
+                    &nbsp;&nbsp;<span class="code-keyword">SET</span> <span class="code-string">nama_pasien</span> = <span class="code-string">'Septin'</span> <br>
+                    &nbsp;&nbsp;<span class="code-keyword">WHERE</span> <span class="code-string">id_pasien</span> = <span class="code-string">3</span>;<br>
+                    &nbsp;&nbsp;<span class="code-keyword">COMMIT</span>;<br>
+                    <span class="code-keyword">END</span>
+                </div>
+
+                <div class="script-content">
+                    Saya membuat routine "transaksi4" dengan kode SQL di atas. Perhatikan bahwa ROLLBACK hanya membatalkan INSERT, sementara UPDATE masih akan dijalankan dan di-COMMIT.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Jalankan Transaksi 4</span>
+                    <div class="step-desc">Ketik: CALL transaksi4;</div>
+                </div>
+
+                <div class="script-content">
+                    Saya menjalankan "CALL transaksi4;" dan transaksi berhasil dijalankan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Verifikasi Hasil Transaksi 4</span>
+                    <div class="step-desc">Buka tabel pasien untuk melihat hasilnya</div>
+                </div>
+
+                <div class="script-content">
+                    Hasil yang terlihat di layar adalah:
+                    • <strong>Tidak ada id_pasien 7</strong> karena INSERT di-ROLLBACK
+                    • <strong>Nama pasien id_pasien 3 sudah berubah menjadi "Septin"</strong> karena UPDATE di-COMMIT
+                    
+                    Ini menunjukkan bahwa ROLLBACK hanya membatalkan perubahan sebelum ROLLBACK dijalankan, sedangkan operasi setelahnya tetap dijalankan.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✔️ Kesimpulan ROLLBACK:</strong><br>
+                    • ROLLBACK membatalkan transaksi yang belum di-COMMIT<br>
+                    • Database kembali ke state awal sebelum transaksi<br>
+                    • Berguna untuk menangani error atau kondisi tidak diinginkan<br>
+                    • Operasi setelah ROLLBACK dapat tetap dijalankan
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('section4')">Lanjut ke Savepoint →</button>
+                </div>
+            </div>
+
+            <!-- SECTION 4: SAVEPOINT -->
+            <div id="section4" class="section">
+                <h2>🔖 Praktikum 3: SAVEPOINT (Checkpoint)</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 50%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Sekarang kita akan mempelajari SAVEPOINT, yang memungkinkan kita untuk membuat titik penyimpanan dalam transaksi.</strong>
+                </div>
+
+                <h3>📝 Penjelasan Savepoint</h3>
+                <div class="script-content">
+                    SAVEPOINT (juga dikenal sebagai Checkpoint) adalah titik dalam transaksi di mana database state disimpan. Berbeda dengan ROLLBACK yang membatalkan seluruh transaksi, ROLLBACK TO SAVEPOINT hanya membatalkan kembali ke savepoint yang ditentukan, bukan ke awal transaksi.
+                </div>
+
+                <div class="reference-box">
+                    <strong>Karakteristik SAVEPOINT:</strong><br>
+                    • Membuat titik penyimpanan dalam transaksi<br>
+                    • Memungkinkan ROLLBACK parsial ke savepoint tertentu<br>
+                    • Tidak memperkenalkan COMMIT otomatis<br>
+                    • Berguna untuk transaksi kompleks dengan banyak operasi
+                </div>
+
+                <h3>🔧 Langkah-Langkah Praktik</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Buat Transaksi 5 dengan SAVEPOINT</span>
+                    <div class="step-desc">Membuat transaksi dengan tiga INSERT dan menggunakan SAVEPOINT</div>
+                </div>
+
+                <div class="script-content">
+                    Saya akan membuat transaksi 5 yang melakukan 3 kali INSERT data pasien:
+                    1. INSERT pasien id 7
+                    2. Buat SAVEPOINT point1
+                    3. INSERT pasien id 8
+                    4. ROLLBACK ke point1 (membatalkan INSERT id 8)
+                    5. INSERT pasien id 9
+                    6. COMMIT (menyimpan id 7 dan id 9, tetapi id 8 dibatalkan)
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">BEGIN</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">INSERT INTO</span> pasien <br>
+                    &nbsp;&nbsp;(<span class="code-string">id_pasien</span>, <span class="code-string">nama_pasien</span>, <span class="code-string">alamat_pasien</span>, <span class="code-string">jenis_kelamin</span>)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">VALUES</span> (<span class="code-string">7</span>, <span class="code-string">'Rudi'</span>, <span class="code-string">'Jl Ahmad Yani'</span>, <span class="code-string">1</span>);<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-keyword">SAVEPOINT</span> <span class="code-string">point1</span>;<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-keyword">INSERT INTO</span> pasien <br>
+                    &nbsp;&nbsp;(<span class="code-string">id_pasien</span>, <span class="code-string">nama_pasien</span>, <span class="code-string">alamat_pasien</span>, <span class="code-string">jenis_kelamin</span>)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">VALUES</span> (<span class="code-string">8</span>, <span class="code-string">'Andi'</span>, <span class="code-string">'Jl Gatot Subroto'</span>, <span class="code-string">1</span>);<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-keyword">ROLLBACK TO</span> <span class="code-string">point1</span>;<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-keyword">INSERT INTO</span> pasien <br>
+                    &nbsp;&nbsp;(<span class="code-string">id_pasien</span>, <span class="code-string">nama_pasien</span>, <span class="code-string">alamat_pasien</span>, <span class="code-string">jenis_kelamin</span>)<br>
+                    &nbsp;&nbsp;<span class="code-keyword">VALUES</span> (<span class="code-string">9</span>, <span class="code-string">'Siti'</span>, <span class="code-string">'Jl Pemuda'</span>, <span class="code-string">2</span>);<br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-keyword">COMMIT</span>;<br>
+                    <span class="code-keyword">END</span>
+                </div>
+
+                <div class="script-content">
+                    Saya membuat routine "transaksi5" dan memasukkan kode SQL di atas. Sekarang saya simpan routine ini.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Jalankan Transaksi 5</span>
+                    <div class="step-desc">Ketik: CALL transaksi5;</div>
+                </div>
+
+                <div class="script-content">
+                    Saya menjalankan "CALL transaksi5;" di menu SQL. Transaksi berhasil dijalankan tanpa error.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Verifikasi Hasil di Tabel Pasien</span>
+                    <div class="step-desc">Buka tabel pasien untuk melihat data mana saja yang berhasil disimpan</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya membuka tabel pasien untuk verifikasi. Hasil yang terlihat adalah:
+                    • <strong>id_pasien 7 (Rudi) ADA</strong> - berhasil disimpan
+                    • <strong>id_pasien 8 (Andi) TIDAK ADA</strong> - dibatalkan karena ROLLBACK TO point1
+                    • <strong>id_pasien 9 (Siti) ADA</strong> - berhasil disimpan
+                    
+                    Ini menunjukkan bahwa SAVEPOINT memungkinkan kita melakukan rollback parsial hanya pada bagian tertentu dari transaksi.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✔️ Kesimpulan SAVEPOINT:</strong><br>
+                    • SAVEPOINT membuat titik penyimpanan dalam transaksi<br>
+                    • ROLLBACK TO SAVEPOINT membatalkan kembali ke titik tersebut<br>
+                    • Operasi setelah SAVEPOINT tetap dapat dijalankan<br>
+                    • Berguna untuk transaksi kompleks dengan kontrol granular
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('section5')">Lanjut ke Trigger →</button>
+                </div>
+            </div>
+
+            <!-- SECTION 5: TRIGGER -->
+            <div id="section5" class="section">
+                <h2>⚡ Praktikum 4: TRIGGER</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 60%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Sekarang kita akan mempelajari salah satu fitur paling powerful dalam SQL: TRIGGER.</strong>
+                </div>
+
+                <h3>📝 Penjelasan Trigger</h3>
+                <div class="script-content">
+                    TRIGGER adalah sebuah event atau pemicu yang secara otomatis menjalankan perintah SQL ketika terjadi perubahan data pada tabel tertentu. TRIGGER dapat dipicu oleh operasi INSERT, UPDATE, atau DELETE. Selain itu, TRIGGER juga dapat dikonfigurasi untuk dijalankan sebelum (BEFORE) atau sesudah (AFTER) operasi tersebut.
+                </div>
+
+                <div class="reference-box">
+                    <strong>Karakteristik TRIGGER:</strong><br>
+                    • Dijalankan otomatis ketika terjadi event tertentu<br>
+                    • Event: INSERT, UPDATE, DELETE<br>
+                    • Timing: BEFORE atau AFTER event<br>
+                    • Berguna untuk memelihara integritas data dan otomasi<br>
+                    • Dapat melakukan validasi dan penyesuaian data
+                </div>
+
+                <h3>📋 Jenis-Jenis Trigger</h3>
+                <table>
+                    <tr>
+                        <th>No</th>
+                        <th>Jenis Trigger</th>
+                        <th>Kapan Dijalankan</th>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td><strong>BEFORE INSERT</strong></td>
+                        <td>Sebelum data dimasukkan ke tabel</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td><strong>AFTER INSERT</strong></td>
+                        <td>Setelah data dimasukkan ke tabel</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td><strong>BEFORE UPDATE</strong></td>
+                        <td>Sebelum data diubah</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td><strong>AFTER UPDATE</strong></td>
+                        <td>Setelah data diubah</td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td><strong>BEFORE DELETE</strong></td>
+                        <td>Sebelum data dihapus</td>
+                    </tr>
+                    <tr>
+                        <td>6</td>
+                        <td><strong>AFTER DELETE</strong></td>
+                        <td>Setelah data dihapus</td>
+                    </tr>
+                </table>
+
+                <h3>🔧 Langkah-Langkah Praktik Trigger</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Buat 2 Tabel Tambahan: obat dan transaksi_obat</span>
+                    <div class="step-desc">Membuat tabel untuk keperluan demonstrasi trigger</div>
+                </div>
+
+                <div class="script-content">
+                    Pertama, saya perlu membuat dua tabel tambahan untuk keperluan demonstrasi trigger. Saya akan membuat tabel "obat" dan "transaksi_obat".
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">CREATE TABLE</span> obat (<br>
+                    &nbsp;&nbsp;<span class="code-string">id_obat</span> INT(6) AUTO_INCREMENT PRIMARY KEY,<br>
+                    &nbsp;&nbsp;<span class="code-string">kode_obat</span> VARCHAR(5),<br>
+                    &nbsp;&nbsp;<span class="code-string">nama_obat</span> VARCHAR(30),<br>
+                    &nbsp;&nbsp;<span class="code-string">harga</span> INT(10),<br>
+                    &nbsp;&nbsp;<span class="code-string">stok</span> INT(5)<br>
+                    );
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">CREATE TABLE</span> transaksi_obat (<br>
+                    &nbsp;&nbsp;<span class="code-string">id_transaksi</span> INT(5) AUTO_INCREMENT PRIMARY KEY,<br>
+                    &nbsp;&nbsp;<span class="code-string">id_pasien</span> INT(3),<br>
+                    &nbsp;&nbsp;<span class="code-string">id_obat</span> INT(3),<br>
+                    &nbsp;&nbsp;<span class="code-string">jumlah</span> INT(10),<br>
+                    &nbsp;&nbsp;<span class="code-string">total_harga</span> INT(10)<br>
+                    );
+                </div>
+
+                <div class="script-content">
+                    Saya membuka menu SQL dan memasukkan kode SQL untuk membuat kedua tabel di atas. Setelah mengklik Go, kedua tabel berhasil dibuat.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Masukkan Data Sample ke Tabel Obat</span>
+                    <div class="step-desc">Menambahkan beberapa data obat untuk demo trigger</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya akan menambahkan beberapa data contoh ke tabel obat. Saya akan memasukkan data obat seperti Amoxillin, Paracetamol, dan Ibuprofen dengan stok masing-masing.
+                </div>
+
+                <div class="script-content">
+                    Saya menggunakan interface phpMyAdmin untuk insert data obat:
+                    • Amoxillin dengan stok 20
+                    • Paracetamol dengan stok 50
+                    • Ibuprofen dengan stok 30
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Buat Trigger AFTER INSERT pada Tabel transaksi_obat</span>
+                    <div class="step-desc">Membuat trigger yang otomatis mengurangi stok obat</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya akan membuat trigger yang sangat berguna. Trigger ini akan otomatis mengurangi stok obat ketika ada transaksi pembelian. Scenario-nya adalah: ketika seorang pasien membeli obat Amoxillin sebanyak 5 buah, maka secara otomatis stok Amoxillin akan berkurang dari 20 menjadi 15.
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">DELIMITER $$</span><br>
+                    <span class="code-keyword">CREATE TRIGGER</span> tg_jual <span class="code-keyword">AFTER INSERT</span><br>
+                    <span class="code-keyword">ON</span> transaksi_obat<br>
+                    <span class="code-keyword">FOR EACH ROW</span><br>
+                    <span class="code-keyword">BEGIN</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">UPDATE</span> obat <br>
+                    &nbsp;&nbsp;<span class="code-keyword">SET</span> <span class="code-string">stok</span> = <span class="code-string">stok</span> - <span class="code-string">new.jumlah</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">WHERE</span> <span class="code-string">id_obat</span> = <span class="code-string">new.id_obat</span>;<br>
+                    <span class="code-keyword">END $$</span><br>
+                    <span class="code-keyword">DELIMITER ;</span>
+                </div>
+
+                <div class="script-content">
+                    Mari kita bahas struktur trigger ini:
+                    • <strong>DELIMITER $$</strong> - Mengubah delimiter dari ; menjadi $$
+                    • <strong>CREATE TRIGGER tg_jual</strong> - Membuat trigger dengan nama tg_jual
+                    • <strong>AFTER INSERT</strong> - Trigger dijalankan setelah INSERT
+                    • <strong>ON transaksi_obat</strong> - Trigger bekerja pada tabel transaksi_obat
+                    • <strong>FOR EACH ROW</strong> - Untuk setiap baris yang diinsert
+                    • <strong>BEGIN...END</strong> - Blok pernyataan SQL
+                    • <strong>UPDATE obat SET stok = stok - new.jumlah</strong> - Mengurangi stok obat
+                    • <strong>WHERE id_obat = new.id_obat</strong> - Dengan id obat yang sesuai dengan data baru
+                </div>
+
+                <div class="script-content">
+                    Saya membuka menu Triggers di phpMyAdmin dan mengklik "Add Trigger". Saya memasukkan kode SQL di atas dan menyimpannya. Trigger "tg_jual" berhasil dibuat.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Lihat Stok Awal Obat</span>
+                    <div class="step-desc">Sebelum trigger dijalankan, catat stok obat</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya membuka tabel obat untuk melihat kondisi awal stok. Stok Amoxillin saat ini adalah 20.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Masukkan Data ke Tabel transaksi_obat</span>
+                    <div class="step-desc">Membuat transaksi pembelian obat</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya akan membuat transaksi di mana seorang pasien membeli obat Amoxillin sebanyak 5 buah. Saya menggunakan interface phpMyAdmin untuk insert data:
+                    • id_pasien: 1
+                    • id_obat: 1 (Amoxillin)
+                    • jumlah: 5
+                    • total_harga: 750
+                </div>
+
+                <div class="script-content">
+                    Setelah mengklik Insert, data berhasil dimasukkan ke tabel transaksi_obat. Sekarang trigger "tg_jual" akan otomatis dijalankan!
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Verifikasi Perubahan Stok Obat</span>
+                    <div class="step-desc">Cek kembali stok obat setelah trigger berjalan</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya membuka kembali tabel obat untuk melihat apakah stok Amoxillin berubah. <strong>STOK AMOXILLIN SEKARANG ADALAH 15!</strong> Artinya, stok berkurang dari 20 menjadi 15 (20 - 5 = 15). Trigger berhasil berjalan otomatis!
+                </div>
+
+                <div class="reference-box">
+                    <strong>✔️ Bagaimana Trigger Bekerja:</strong><br>
+                    1. Data transaksi (id_obat=1, jumlah=5) dimasukkan ke tabel transaksi_obat<br>
+                    2. AFTER INSERT event terpicu<br>
+                    3. Trigger tg_jual dijalankan secara otomatis<br>
+                    4. Perintah UPDATE mengurangi stok obat dengan id_obat=1 sebesar jumlah=5<br>
+                    5. Stok obat berubah dari 20 menjadi 15
+                </div>
+
+                <h3>💡 Keuntungan Menggunakan Trigger</h3>
+                <div class="step">
+                    <span class="step-number">✓</span>
+                    <span class="step-title">Otomasi</span>
+                    <div class="step-desc">Operasi kompleks dapat dilakukan otomatis tanpa intervensi manual</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">✓</span>
+                    <span class="step-title">Integritas Data</span>
+                    <div class="step-desc">Memastikan data tetap konsisten dan valid</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">✓</span>
+                    <span class="step-title">Efisiensi</span>
+                    <div class="step-desc">Mengurangi beban aplikasi karena logic berada di database</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">✓</span>
+                    <span class="step-title">Keamanan</span>
+                    <div class="step-desc">Mencegah operasi yang tidak valid atau tidak diinginkan</div>
+                </div>
+
+                <div class="reference-box">
+                    <strong>✔️ Kesimpulan TRIGGER:</strong><br>
+                    • TRIGGER adalah event yang otomatis menjalankan perintah SQL<br>
+                    • Dapat dipicu oleh INSERT, UPDATE, atau DELETE<br>
+                    • Dapat dijalankan BEFORE atau AFTER event<br>
+                    • Berguna untuk otomasi dan memelihara integritas data<br>
+                    • Sangat powerful untuk business logic yang kompleks
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('section6')">Lanjut ke Replikasi →</button>
+                </div>
+            </div>
+
+            <!-- SECTION 6: REPLIKASI -->
+            <div id="section6" class="section">
+                <h2>🔄 Praktikum 5: Basis Data Terdistribusi - Replikasi Master-Slave</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 75%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Sekarang kita akan memasuki bagian kedua praktikum: Basis Data Terdistribusi dengan replikasi Master-Slave.</strong>
+                </div>
+
+                <h3>📝 Penjelasan Basis Data Terdistribusi</h3>
+                <div class="script-content">
+                    Basis Data Terdistribusi adalah sistem database yang tersebar di beberapa lokasi fisik dan terhubung melalui jaringan. Dalam konteks praktikum ini, kita akan melakukan replikasi data dari satu server (Master) ke server lain (Slave). Artinya, semua perubahan data pada Master akan otomatis terefleksi pada Slave.
+                </div>
+
+                <div class="reference-box">
+                    <strong>Keuntungan Replikasi Database:</strong><br>
+                    • <strong>Redundansi:</strong> Data tersimpan di multiple lokasi<br>
+                    • <strong>Availability:</strong> Sistem tetap berjalan jika salah satu server down<br>
+                    • <strong>Load Balancing:</strong> Distribusi beban kerja ke multiple server<br>
+                    • <strong>Disaster Recovery:</strong> Backup otomatis di lokasi berbeda<br>
+                    • <strong>Scalability:</strong> Dapat menangani lebih banyak read requests
+                </div>
+
+                <h3>🏗️ Arsitektur Master-Slave</h3>
+                <div class="script-content">
+                    Dalam praktikum ini, kita akan menggunakan arsitektur Master-Slave dengan:
+                    • <strong>Master:</strong> Windows 10 (database utama, menerima write operations)
+                    • <strong>Slave:</strong> Ubuntu (database replika, menerima perubahan dari Master)
+                    • Data mengalir satu arah: Master → Slave
+                </div>
+
+                <h3>🔧 Langkah-Langkah Konfigurasi Master (Windows 10)</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Aktifkan Apache dan MySQL di XAMPP</span>
+                    <div class="step-desc">Pastikan service Apache dan MySQL running dengan status hijau</div>
+                </div>
+
+                <div class="script-content">
+                    Pada komputer master (Windows 10), saya membuka control XAMPP dan memastikan service Apache dan MySQL sudah berstatus Running (hijau). Saya sudah melakukan start sebelumnya.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Akses Menu Replication di phpMyAdmin</span>
+                    <div class="step-desc">Buka browser, akses localhost/phpmyadmin, kemudian klik menu Replication</div>
+                </div>
+
+                <div class="script-content">
+                    Saya membuka browser Mozilla Firefox dan masuk ke halaman localhost/phpmyadmin. Di bagian atas halaman, saya dapat melihat menu "Replication". Saya mengklik menu tersebut.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Konfigurasi Master Server</span>
+                    <div class="step-desc">Pada section Master replication, klik tombol "configure it"</div>
+                </div>
+
+                <div class="script-content">
+                    Di halaman Replication, ada dua section: Master dan Slave. Pada Master replication section, saya dapat melihat tombol "configure it". Saya klik tombol tersebut untuk memulai konfigurasi master.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Pilih Database yang Akan Direplikasi</span>
+                    <div class="step-desc">Pilih database "rumahsakit" dari daftar database</div>
+                </div>
+
+                <div class="script-content">
+                    Setelah mengklik "configure it", muncul form untuk memilih database. Saya memilih "rumahsakit" dari dropdown list database yang tersedia.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Copy Perintah Konfigurasi</span>
+                    <div class="step-desc">phpMyAdmin akan menampilkan perintah yang harus ditambahkan ke file my.ini</div>
+                </div>
+
+                <div class="script-content">
+                    Halaman kemudian menampilkan 4 baris perintah yang harus saya copy. Perintah-perintah ini terlihat seperti:
+                    • server-id=1
+                    • log_bin=mysql-bin
+                    • binlog_do_db=rumahsakit
+                    
+                    Saya copy keseluruhan 4 baris perintah ini. Penting: JANGAN klik Go dulu!
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Penting:</strong> Jangan klik Go sebelum melakukan paste perintah ke file my.ini. Urutan ini sangat penting untuk konfigurasi yang benar.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Buka File my.ini di Control XAMPP</span>
+                    <div class="step-desc">Klik kanan pada tombol "Config" di XAMPP Control Panel, pilih my.ini</div>
+                </div>
+
+                <div class="script-content">
+                    Saya kembali ke XAMPP Control Panel, lalu klik kanan pada tombol "Config". Di menu yang muncul, saya pilih "my.ini" untuk membuka file konfigurasi MySQL.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">7</span>
+                    <span class="step-title">Paste Perintah ke File my.ini</span>
+                    <div class="step-desc">Paste 4 baris perintah yang telah dicopy ke dalam file my.ini</div>
+                </div>
+
+                <div class="script-content">
+                    File my.ini terbuka di text editor. Saya paste 4 baris perintah yang telah dicopy ke dalam file ini di bagian yang sesuai. Setelah paste, saya simpan file dengan Ctrl+S.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">8</span>
+                    <span class="step-title">Restart Service MySQL</span>
+                    <div class="step-desc">Kembali ke XAMPP Control Panel, Stop kemudian Start service MySQL</div>
+                </div>
+
+                <div class="script-content">
+                    Saya kembali ke XAMPP Control Panel dan melakukan restart service MySQL dengan cara:
+                    1. Klik tombol Stop pada MySQL
+                    2. Tunggu hingga status berubah
+                    3. Klik tombol Start pada MySQL untuk menjalankan kembali
+                </div>
+
+                <div class="step">
+                    <span class="step-number">9</span>
+                    <span class="step-title">Klik Go untuk Menyelesaikan Konfigurasi Master</span>
+                    <div class="step-desc">Kembali ke halaman phpMyAdmin Replication dan klik tombol Go</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya kembali ke browser phpMyAdmin di halaman Replication Master configuration. Saya klik tombol "Go" untuk menyelesaikan konfigurasi master. Konfigurasi berhasil diterapkan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">10</span>
+                    <span class="step-title">Catat Master Status</span>
+                    <div class="step-desc">Di menu Replication, lihat section "Show master status"</div>
+                </div>
+
+                <div class="script-content">
+                    Pada halaman Replication, ada section "Show master status" yang menampilkan status server master. Di sini ditampilkan variable seperti:
+                    • File: mysql-bin.000014
+                    • Position: 2926
+                    
+                    Saya catat informasi ini karena akan digunakan saat konfigurasi slave. Ini adalah binary log information yang diperlukan untuk slave tahu dari mana harus mulai membaca perubahan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">11</span>
+                    <span class="step-title">Buat User Account untuk Replikasi</span>
+                    <div class="step-desc">Klik menu User Accounts, kemudian Add user account</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya perlu membuat user account khusus untuk replikasi yang akan digunakan oleh slave. Saya klik menu "User Accounts" di phpMyAdmin.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">12</span>
+                    <span class="step-title">Isi Informasi User Replikasi</span>
+                    <div class="step-desc">Masukkan username, hostname (IP slave), dan password</div>
+                </div>
+
+                <div class="script-content">
+                    Di halaman "Add user account", saya mengisi:
+                    • <strong>Username:</strong> prodisi (sebagai contoh)
+                    • <strong>Hostname:</strong> IP address komputer slave (Ubuntu) - misalkan 192.168.56.2
+                    • <strong>Password:</strong> prodisi (sebagai contoh)
+                    
+                    Kemudian saya centang privilege "Replication client" dan "Replication slave" agar user ini dapat melakukan replikasi.
+                </div>
+
+                <div class="reference-box">
+                    <strong>Penjelasan Privilege Replikasi:</strong><br>
+                    • <strong>Replication client:</strong> User dapat melihat master status, binary logs, dan informasi replikasi<br>
+                    • <strong>Replication slave:</strong> User dapat melakukan replication dan update dari master
+                </div>
+
+                <div class="script-content">
+                    Setelah mengisi semua informasi, saya klik tombol "Go" untuk menyimpan user account baru. User replikasi berhasil dibuat.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">13</span>
+                    <span class="step-title">Export Database Rumah Sakit</span>
+                    <div class="step-desc">Pilih database, klik Export untuk membuat file SQL</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya perlu mengexport database rumahsakit untuk diimport ke server slave. Saya pilih database "rumahsakit" dari sidebar kiri.
+                </div>
+
+                <div class="script-content">
+                    Setelah memilih database, saya klik menu "Export" untuk membuat dump file SQL. Setelah diklik Go, file rumahsakit_export.sql akan didownload. File ini nantinya akan disimpan di flashdisk dan dibawa ke komputer Ubuntu.
+                </div>
+
+                <h3>🔧 Langkah-Langkah Konfigurasi Slave (Ubuntu)</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Copy File Database dari Flashdisk</span>
+                    <div class="step-desc">Pada komputer Ubuntu, copy file rumahsakit_export.sql dari flashdisk ke folder Documents</div>
+                </div>
+
+                <div class="script-content">
+                    Saya telah membawa flashdisk ke komputer Ubuntu. Saya membuka file manager dan mendeteksi flashdisk. Kemudian saya copy file rumahsakit_export.sql dan paste ke folder Documents.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Buka Terminal Ubuntu</span>
+                    <div class="step-desc">Tekan Ctrl+Alt+T untuk membuka terminal</div>
+                </div>
+
+                <div class="script-content">
+                    Saya membuka terminal Ubuntu dengan keyboard shortcut. Terminal berhasil terbuka dan menampilkan command prompt bash.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">Masuk ke Direktori /opt/lampp</span>
+                    <div class="step-desc">Ketik: cd /opt/lampp</div>
+                </div>
+
+                <div class="script-content">
+                    Saya ketik perintah "cd /opt/lampp" untuk berpindah ke direktori XAMPP. Kemudian saya ketik "ls" untuk melihat file-file yang ada di direktori tersebut.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">Jalankan XAMPP Control Manager</span>
+                    <div class="step-desc">Ketik: sudo ./manager-linux-x64.run</div>
+                </div>
+
+                <div class="script-content">
+                    Saya ketik perintah "sudo ./manager-linux-x64.run" untuk menjalankan XAMPP control manager. System meminta password, saya masukkan password akun Ubuntu. Setelah itu, XAMPP Control Panel muncul di layar.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">Jalankan Service Apache dan MySQL</span>
+                    <div class="step-desc">Di Control Panel, klik tab "Manage Servers", kemudian Start Apache dan MySQL</div>
+                </div>
+
+                <div class="script-content">
+                    Di XAMPP Control Panel, saya klik tab "Manage Servers". Kemudian saya start Apache dan MySQL dengan mengklik tombol "Start" untuk masing-masing service. Setelah beberapa saat, statusnya berubah menjadi "Running".
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Akses phpMyAdmin di Ubuntu</span>
+                    <div class="step-desc">Buka browser, ketik: http://localhost/phpmyadmin</div>
+                </div>
+
+                <div class="script-content">
+                    Saya membuka browser Mozilla Firefox di Ubuntu dan menuju ke halaman http://localhost/phpmyadmin. Halaman phpMyAdmin berhasil tampil di Ubuntu.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">7</span>
+                    <span class="step-title">Buat Database Baru</span>
+                    <div class="step-desc">Klik menu Databases, buat database baru dengan nama "rumahsakit"</div>
+                </div>
+
+                <div class="script-content">
+                    Saya klik menu "Databases" dan membuat database baru dengan nama "rumahsakit". Setelah mengklik "Create", database berhasil dibuat.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">8</span>
+                    <span class="step-title">Import File Database</span>
+                    <div class="step-desc">Klik menu Import, browse file rumahsakit_export.sql dari Documents</div>
+                </div>
+
+                <div class="script-content">
+                    Setelah database dibuat, saya klik menu "Import". Halaman import tampil dengan tombol "Browse...". Saya klik Browse dan mencari file rumahsakit_export.sql yang telah disimpan di Documents tadi.
+                </div>
+
+                <div class="script-content">
+                    Setelah memilih file, saya klik tombol "Go" untuk memulai proses import. Database rumahsakit dengan semua tabel dan data berhasil diimport ke server Ubuntu.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">9</span>
+                    <span class="step-title">Akses Menu Replication Slave</span>
+                    <div class="step-desc">Klik menu Replication, kemudian pada Slave replication section klik "configure it"</div>
+                </div>
+
+                <div class="script-content">
+                    Di halaman phpMyAdmin Ubuntu, saya klik menu "Replication" untuk membuka halaman konfigurasi replikasi.
+                </div>
+
+                <div class="script-content">
+                    Pada halaman Replication, saya dapat melihat section "Slave replication" dengan tombol "configure it". Saya klik tombol tersebut untuk memulai konfigurasi slave.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">10</span>
+                    <span class="step-title">Isi Konfigurasi Slave</span>
+                    <div class="step-desc">Masukkan informasi: server-id, username, password, host (IP master), dan port</div>
+                </div>
+
+                <div class="script-content">
+                    Halaman "Slave configuration" tampil dengan beberapa field yang harus diisi:
+                    • <strong>Server-id:</strong> 2 (berbeda dari master yang 1)
+                    • <strong>Username:</strong> prodisi (sesuai user replikasi yang dibuat di master)
+                    • <strong>Password:</strong> prodisi (password user replikasi)
+                    • <strong>Host:</strong> 192.168.56.1 (IP address komputer master/Windows 10)
+                    • <strong>Port:</strong> 3306 (port default MySQL)
+                    
+                    Saya isi semua field tersebut.
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Penting:</strong> Jangan klik Go dulu! Saya perlu melakukan modifikasi pada file my.cnf terlebih dahulu.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">11</span>
+                    <span class="step-title">Copy Server-id dari Form</span>
+                    <div class="step-desc">Copy baris server-id yang ditampilkan di form slave configuration</div>
+                </div>
+
+                <div class="script-content">
+                    Sebelum mengklik Go, saya copy informasi server-id yang ditampilkan. Informasi ini nanti akan ditambahkan ke file my.cnf.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">12</span>
+                    <span class="step-title">Buka File my.cnf via XAMPP Control</span>
+                    <div class="step-desc">Di XAMPP Control Panel, klik MySQL Databases → Configure → Open Conf File</div>
+                </div>
+
+                <div class="script-content">
+                    Saya kembali ke XAMPP Control Panel di Ubuntu. Saya klik "MySQL Databases", kemudian "Configure", lalu "Open Conf File". Halaman editor text muncul dengan file my.cnf.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">13</span>
+                    <span class="step-title">Modifikasi File my.cnf</span>
+                    <div class="step-desc">Cari server-id dan tambahkan konfigurasi replikasi</div>
+                </div>
+
+                <div class="script-content">
+                    Di file my.cnf, saya mencari baris yang berisi "server-id". Jika ada tanda # di awal baris (berkomentar), saya hapus tanda tersebut agar menjadi aktif. Kemudian saya tambahkan baris baru dengan informasi server-id dan replicate-do-db=rumahsakit dari form yang telah saya copy tadi.
+                </div>
+
+                <div class="script-content">
+                    File my.cnf sekarang terlihat seperti:
+                    • server-id=2
+                    • replicate-do-db=rumahsakit
+                </div>
+
+                <div class="step">
+                    <span class="step-number">14</span>
+                    <span class="step-title">Ubah Hak Akses File my.cnf</span>
+                    <div class="step-desc">Di terminal, ketik: sudo chmod a+rwx /opt/lampp/etc/my.cnf</div>
+                </div>
+
+                <div class="script-content">
+                    Sebelum menyimpan file, saya perlu mengubah permission file my.cnf agar dapat ditulis. Saya buka terminal baru dan ketik perintah untuk mengubah hak akses.
+                </div>
+
+                <div class="script-content">
+                    Setelah menjalankan perintah tersebut dan memasukkan password, hak akses file berhasil diubah menjadi read-write untuk semua user.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">15</span>
+                    <span class="step-title">Simpan File my.cnf</span>
+                    <div class="step-desc">Klik tombol Save untuk menyimpan perubahan</div>
+                </div>
+
+                <div class="script-content">
+                    Kini file my.cnf dapat disimpan dengan mengklik tombol Save di text editor.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">16</span>
+                    <span class="step-title">Restart Service Apache dan MySQL</span>
+                    <div class="step-desc">Di XAMPP Control Panel, klik tombol Restart</div>
+                </div>
+
+                <div class="script-content">
+                    Saya kembali ke XAMPP Control Panel dan mengklik tombol "Restart" untuk me-restart service Apache dan MySQL agar perubahan konfigurasi diterapkan.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">17</span>
+                    <span class="step-title">Kembali ke Browser dan Klik Go</span>
+                    <div class="step-desc">Di phpMyAdmin, halaman Slave configuration masih terbuka, klik tombol Go</div>
+                </div>
+
+                <div class="script-content">
+                    Setelah service di-restart, saya kembali ke browser phpMyAdmin. Halaman Slave configuration masih terbuka dari tadi. Sekarang saya bisa mengklik tombol "Go" untuk menyelesaikan konfigurasi slave. Konfigurasi berhasil diterapkan.
+                </div>
+
+                <div class="note">
+                    <strong>📌 Jika Ada Error AllowArbitraryServer:</strong> Jika muncul error "Connection server disable, please enable $cfg['AllowArbitraryServer']", berarti perlu memodifikasi file config.default.php. Ubah nilai dari false menjadi true pada baris yang berisi AllowArbitraryServer. Kemudian restart service Apache dan MySQL.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">18</span>
+                    <span class="step-title">Buka Terminal dan Masuk ke MySQL</span>
+                    <div class="step-desc">Di terminal, ketik: cd /opt/lampp/bin && sudo ./mysql -u root</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya perlu mengonfigurasi master-slave di level MySQL. Saya buka terminal dan masuk ke direktori /opt/lampp/bin, kemudian menjalankan MySQL client dengan user root.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">19</span>
+                    <span class="step-title">Cek Status Slave</span>
+                    <div class="step-desc">Di MySQL prompt, ketik: SHOW SLAVE STATUS;</div>
+                </div>
+
+                <div class="script-content">
+                    Setelah masuk ke MySQL, saya mengetik perintah "SHOW SLAVE STATUS;" untuk melihat status slave saat ini. Jika hasilnya error "no slave status", itu berarti slave belum aktif, yang merupakan kondisi normal.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">20</span>
+                    <span class="step-title">Ganti Master (CHANGE MASTER TO)</span>
+                    <div class="step-desc">Ketik perintah CHANGE MASTER TO dengan data dari master</div>
+                </div>
+
+                <div class="script-content">
+                    Saya mengetik perintah CHANGE MASTER TO dengan parameter:
+                    • MASTER_HOST='192.168.56.1' (IP master)
+                    • MASTER_USER='prodisi' (username replikasi)
+                    • MASTER_PASSWORD='prodisi' (password replikasi)
+                    • MASTER_LOG_FILE='mysql-bin.000014' (dari master status yang dicatat)
+                    • MASTER_LOG_POS=2926 (dari master status yang dicatat)
+                </div>
+
+                <div class="code-block">
+                    <span class="code-keyword">CHANGE MASTER TO</span><br>
+                    MASTER_HOST=<span class="code-string">'192.168.56.1'</span>,<br>
+                    MASTER_USER=<span class="code-string">'prodisi'</span>,<br>
+                    MASTER_PASSWORD=<span class="code-string">'prodisi'</span>,<br>
+                    MASTER_LOG_FILE=<span class="code-string">'mysql-bin.000014'</span>,<br>
+                    MASTER_LOG_POS=<span class="code-string">2926</span>;
+                </div>
+
+                <div class="script-content">
+                    Setelah mengetik perintah ini, saya tekan Enter. Jika tidak ada error, slave sudah berhasil dikonfigurasi.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">21</span>
+                    <span class="step-title">Start Slave</span>
+                    <div class="step-desc">Ketik: START SLAVE;</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saya menjalankan perintah "START SLAVE;" untuk memulai replikasi slave.
+                </div>
+
+                <div class="step">
+                    <span class="step-number">22</span>
+                    <span class="step-title">Verifikasi Status Slave</span>
+                    <div class="step-desc">Ketik kembali: SHOW SLAVE STATUS;</div>
+                </div>
+
+                <div class="script-content">
+                    Saya mengetik kembali "SHOW SLAVE STATUS;" untuk melihat status slave. Kali ini hasilnya menampilkan informasi detail. Yang paling penting adalah:
+                    • <strong>Slave_IO_Running: Yes</strong> - Thread IO berjalan
+                    • <strong>Slave_SQL_Running: Yes</strong> - Thread SQL berjalan
+                    
+                    Jika kedua status adalah "Yes", berarti slave berhasil terhubung ke master dan siap menerima replikasi!
+                </div>
+
+                <div class="warning">
+                    <strong>⚠️ Jika Ada Status "No":</strong> Jika ada salah satu status yang "No", berarti ada masalah koneksi. Periksa:
+                    • IP address master
+                    • Username dan password replikasi
+                    • Firewall/network connectivity
+                    • Binary log file dan position
+                </div>
+
+                <h3>🧪 Pengujian Replikasi</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Buat Perubahan Data di Master</span>
+                    <div class="step-desc">Di phpMyAdmin master (Windows 10), insert data baru ke tabel obat</div>
+                </div>
+
+                <div class="script-content">
+                    Sekarang saatnya menguji apakah replikasi berfungsi dengan baik. Saya membuka phpMyAdmin di master (Windows 10) dan membuka tabel obat. Saya menambahkan data obat baru:
+                    • kode_obat: A005
+                    • nama_obat: Demam
+                    • harga: 150
+                    • stok: 100
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">Cek Data di Slave</span>
+                    <div class="step-desc">Di phpMyAdmin slave (Ubuntu), buka tabel obat dan verifikasi data baru</div>
+                </div>
+
+                <div class="script-content">
+                    Setelah menambahkan data di master, saya beralih ke phpMyAdmin di slave (Ubuntu). Saya membuka tabel obat yang sama. <strong>DATA BARU SUDAH ADA!</strong> Obat Demam dengan kode A005 sudah tampil di tabel obat di slave! Replikasi berfungsi dengan sempurna!
+                </div>
+
+                <div class="reference-box">
+                    <strong>✔️ Kesimpulan Replikasi Master-Slave:</strong><br>
+                    • Data pada master otomatis terefleksi ke slave<br>
+                    • Replication berfungsi one-way: Master → Slave<br>
+                    • Berguna untuk backup dan disaster recovery<br>
+                    • Dapat meningkatkan availability dan scalability sistem<br>
+                    • Semua tabel dalam database yang ditentukan ter-replicate
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="showSection('pelaporan')">Lanjut ke Pelaporan →</button>
+                </div>
+            </div>
+
+            <!-- PELAPORAN DAN KESIMPULAN -->
+            <div id="pelaporan" class="section">
+                <h2>📝 Pelaporan dan Kesimpulan</h2>
+                <div class="progress-bar"><div class="progress-fill" style="width: 100%;"></div></div>
+
+                <div class="script-content">
+                    <strong>Demikian demonstrasi praktikum Transaksi dan Basis Data Terdistribusi telah selesai.</strong>
+                </div>
+
+                <h3>📋 Ringkasan Materi yang Didemonstrasikan</h3>
+
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <span class="step-title">Konsep Transaksi dan ACID Properties</span>
+                    <div class="step-desc">Atomicity, Consistency, Isolation, Durability - fondasi transaksi database</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <span class="step-title">COMMIT - Membuat Perubahan Permanen</span>
+                    <div class="step-desc">Tanpa COMMIT, data tidak akan disimpan ke database</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <span class="step-title">ROLLBACK - Membatalkan Perubahan</span>
+                    <div class="step-desc">Mengembalikan database ke state sebelumnya</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">4</span>
+                    <span class="step-title">SAVEPOINT - Checkpoint dalam Transaksi</span>
+                    <div class="step-desc">Memungkinkan rollback parsial ke titik tertentu</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">5</span>
+                    <span class="step-title">TRIGGER - Otomasi Event Database</span>
+                    <div class="step-desc">Menjalankan perintah SQL secara otomatis saat terjadi perubahan</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">6</span>
+                    <span class="step-title">Basis Data Terdistribusi - Replikasi Master-Slave</span>
+                    <div class="step-desc">Sinkronisasi data otomatis dari master ke slave</div>
+                </div>
+
+                <h3>🎯 Tujuan Pembelajaran yang Telah Dicapai</h3>
+
+                <div class="reference-box">
+                    <strong>✓ Pemahaman Konsep Dasar:</strong> Mahasiswa telah memahami konsep transaksi, ACID properties, dan implikasinya dalam database.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✓ Pengalaman Praktis:</strong> Mahasiswa telah praktik langsung menggunakan perintah transaksi di MySQL melalui phpMyAdmin dan store procedure.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✓ Penerapan Pengetahuan:</strong> Mahasiswa dapat menerapkan konsep teori ke dalam situasi nyata dengan basis data rumah sakit.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✓ Problem Solving:</strong> Mahasiswa telah menghadapi skenario kompleks dan menyelesaikannya dengan menggunakan fitur-fitur database advanced.
+                </div>
+
+                <div class="reference-box">
+                    <strong>✓ Persiapan Karir:</strong> Mahasiswa telah memperoleh keterampilan praktis yang relevan untuk dunia kerja di bidang database engineering.
+                </div>
+
+                <h3>💡 Kontribusi Praktikum</h3>
+                <div class="script-content">
+                    Melalui praktikum ini, saya telah memahami pentingnya:
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>Transaksi ACID untuk menjaga konsistensi data</li>
+                        <li>Proper error handling menggunakan ROLLBACK dan SAVEPOINT</li>
+                        <li>Otomasi proses database menggunakan TRIGGER</li>
+                        <li>Strategi backup dan disaster recovery dengan replikasi</li>
+                        <li>Arsitektur database terdistribusi untuk high availability</li>
+                    </ul>
+                </div>
+
+                <h3>📝 Tahap Pelaporan Resmi</h3>
+                <div class="script-content">
+                    Sesuai dengan panduan praktikum MSIM4206, mahasiswa wajib menyusun laporan dengan cara upload link rekaman video yang menampilkan:
+                </div>
+
+                <div class="step">
+                    <span class="step-number">a</span>
+                    <span class="step-title">Perkenalan Identitas Mahasiswa</span>
+                    <div class="step-desc">Sebutkan nama lengkap, NIM, dan program studi di awal video</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">b</span>
+                    <span class="step-title">Langkah-Langkah Praktik yang Dilakukan</span>
+                    <div class="step-desc">Tampilkan aktivitas kegiatan mahasiswa step by step dengan penjelasan yang jelas</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">c</span>
+                    <span class="step-title">Hasil Praktik yang Telah Dilakukan</span>
+                    <div class="step-desc">Tunjukkan output/hasil dari setiap praktikum (data di database, status replikasi, etc)</div>
+                </div>
+
+                <div class="step">
+                    <span class="step-number">d</span>
+                    <span class="step-title">Kata-Kata Penutup dari Mahasiswa</span>
+                    <div class="step-desc">Berikan kesimpulan dan refleksi atas pembelajaran yang telah didapat</div>
+                </div>
+
+                <h3>🎬 Tips Pembuatan Video</h3>
+                <div class="reference-box">
+                    <strong>Durasi:</strong> Video berkisar 15-20 menit dengan penjelasan yang terstruktur<br>
+                    <strong>Audio:</strong> Gunakan microphone berkualitas untuk narasi yang jelas<br>
+                    <strong>Screen Recording:</strong> Gunakan tools seperti OBS Studio atau Camtasia<br>
+                    <strong>Editing:</strong> Lakukan editing minimal untuk memastikan konten jelas<br>
+                    <strong>Upload:</strong> Upload ke YouTube/Google Drive dan bagikan link ke dosen pengajar
+                </div>
+
+                <h3>📚 Referensi dan Sumber Belajar Lanjutan</h3>
+                <div class="reference-box">
+                    <strong>Modul MSIM4206:</strong> Bacalah modul 7 dan 8 tentang transaksi database<br>
+                    <strong>MySQL Documentation:</strong> Kunjungi dev.mysql.com untuk dokumentasi lengkap<br>
+                    <strong>Practice:</strong> Coba membuat skenario transaksi dan trigger yang lebih kompleks<br>
+                    <strong>Explore:</strong> Pelajari replicate options lainnya seperti multi-master replication
+                </div>
+
+                <h3>✨ Kata Penutup</h3>
+                <div class="script-content">
+                    <strong>Terima kasih telah mengikuti demonstrasi praktikum Transaksi dan Basis Data Terdistribusi (MSIM4206) ini.</strong>
+                </div>
+
+                <div class="script-content">
+                    Semoga melalui praktikum ini, saya telah berhasil memberikan pemahaman yang mendalam tentang konsep transaksi, ACID properties, dan basis data terdistribusi. Pengetahuan dan keterampilan yang telah saya dapatkan akan sangat berguna dalam menghadapi tantangan di dunia kerja profesional di bidang database engineering dan sistem informasi.
+                </div>
+
+                <div class="script-content">
+                    Saya juga mengucapkan terima kasih kepada dosen pengampu, dosen pengajar, dan pihak-pihak yang telah membimbing saya dalam menyelesaikan praktikum ini. Semoga kesuksesan selalu berpihak kepada kita semua.
+                </div>
+
+                <div class="script-content">
+                    <strong>Wassalamualaikum Warahmatullahi Wabarakatuh 🙏</strong>
+                </div>
+
+                <div class="control-panel">
+                    <button class="btn btn-primary" onclick="printAllSections()">🖨️ Print Script</button>
+                    <button class="btn btn-success" onclick="downloadAsText()">📥 Download Script</button>
+                    <button class="btn btn-primary" onclick="showSection('intro')">↺ Kembali ke Awal</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Script Praktikum MSIM4206 - Universitas Terbuka</p>
+            <p>Transaksi dan Basis Data Terdistribusi</p>
+            <p>Dibuat oleh: <strong>Allif Maulana Sakti - NIM: 053171546</strong></p>
+        </footer>
+    </div>
+
+    <script>
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.add('active');
+                selectedSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+
+            // Update button states
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update progress bar based on section
+            updateProgress(sectionId);
+        }
+
+        // Progress tracking
+        function updateProgress(sectionId) {
+            const sections = {
+                'intro': 10,
+                'section1': 20,
+                'section2': 30,
+                'section3': 40,
+                'section4': 50,
+                'section5': 60,
+                'section6': 75,
+                'pelaporan': 100
+            };
+
+            const progressFill = document.querySelector('.progress-fill');
+            if (progressFill && sections[sectionId]) {
+                const progressBars = document.querySelectorAll('.progress-fill');
+                progressBars.forEach(bar => {
+                    bar.style.width = sections[sectionId] + '%';
+                });
+            }
+        }
+
+        // Print function
+        function printAllSections() {
+            window.print();
+        }
+
+        // Download as text
+        function downloadAsText() {
+            const allText = document.body.innerText;
+            const blob = new Blob([allText], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Script_Praktikum_MSIM4206.txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Set initial active button
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstButton = document.querySelector('.nav-btn');
+            if (firstButton) {
+                firstButton.classList.add('active');
+            }
+        });
+    </script>
+</body>
+</html>
