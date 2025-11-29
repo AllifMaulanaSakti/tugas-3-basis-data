@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panduan Lengkap Praktikum MSIM4206 T3-1 & T3-2 - VirtualBox hingga Replikasi Database</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #667eea;
+            --secondary-color: #764ba2;
+            --success-color: #28a745;
+            --warning-color: #ff9800;
+            --error-color: #dc3545;
+            --info-color: #17a2b8;
+            --bg-light: #f8f9fa;
+            --text-dark: #333;
+            --text-light: #666;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .header p {
+            font-size: 1em;
+            opacity: 0.95;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .progress-section {
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .section-nav {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .nav-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .nav-btn-secondary {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 2px solid var(--primary-color);
+        }
+        
+        .nav-btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+        
+        .subsection {
+            margin: 25px 0;
+            padding: 20px;
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary-color);
+            border-radius: 5px;
+        }
+        
+        .subsection h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .step {
+            margin: 18px 0;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .step-num {
+            min-width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-content h4 {
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 1.05em;
+        }
+        
+        .step-content p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+        
+        .step-content ul {
+            margin-left: 20px;
+            color: var(--text-light);
+            line-height: 1.8;
+        }
+        
+        .step-content li {
+            margin: 5px 0;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .alert-warning {
+            background: #fff3cd;
+            border-left-color: var(--warning-color);
+            color: #856404;
+        }
+        
+        .alert-info {
+            background: #d1ecf1;
+            border-left-color: var(--info-color);
+            color: #0c5460;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            border-left-color: var(--success-color);
+            color: #155724;
+        }
+        
+        .alert-icon {
+            font-size: 1.3em;
+            min-width: 25px;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .table tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .success-badge {
+            background: var(--success-color);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+        
+        .tips-box {
+            background: #e8f4f8;
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        
+        .tips-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .tips-box ul {
+            margin-left: 20px;
+            color: var(--text-dark);
+        }
+        
+        .footer {
+            background: var(--bg-light);
+            padding: 20px;
+            text-align: center;
+            color: var(--text-light);
+            border-top: 2px solid #e0e0e0;
+            margin-top: 40px;
+        }
+        
+        .toc {
+            background: var(--bg-light);
+            border: 2px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .toc h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .toc ol {
+            margin-left: 20px;
+            color: var(--text-dark);
+            line-height: 2;
+        }
+        
+        .toc ol li {
+            cursor: pointer;
+            color: var(--primary-color);
+        }
+        
+        .toc ol li:hover {
+            text-decoration: underline;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 40px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .tab-container {
+            margin: 20px 0;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 8px 15px;
+            border: 2px solid var(--primary-color);
+            background: white;
+            color: var(--primary-color);
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-btn.active {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            background: var(--bg-light);
+            border-radius: 5px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.6em;
+            }
+            
+            .section-title {
+                font-size: 1.3em;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .step {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐧 Panduan Lengkap Praktikum MSIM4206 T3-1 & T3-2</h1>
+            <p>VirtualBox 6.0.24 • Ubuntu 24.04.3 • Transaksi Database • Replikasi Master-Slave</p>
+        </div>
+        
+        <div class="content">
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+            </div>
+            
+            <div class="section-nav">
+                <button class="nav-btn nav-btn-secondary" id="prevBtn" onclick="changeSection(-1)">← Sebelumnya</button>
+                <button class="nav-btn nav-btn-primary" id="nextBtn" onclick="changeSection(1)">Selanjutnya →</button>
+            </div>
+            
+            <!-- DAFTAR ISI -->
+            <div class="section active" id="section0">
+                <h2 class="section-title">📚 Daftar Isi</h2>
+                
+                <div class="toc">
+                    <h3>Panduan Lengkap Praktikum</h3>
+                    <ol>
+                        <li onclick="goToSection(1)">Bagian 1: Persiapan Awal & Download File</li>
+                        <li onclick="goToSection(2)">Bagian 2: Instalasi VirtualBox 6.0.24</li>
+                        <li onclick="goToSection(3)">Bagian 3: Membuat Virtual Machine Ubuntu</li>
+                        <li onclick="goToSection(4)">Bagian 4: Alokasi Hardware (RAM & CPU)</li>
+                        <li onclick="goToSection(5)">Bagian 5: Konfigurasi Hard Disk Virtual</li>
+                        <li onclick="goToSection(6)">Bagian 6: Konfigurasi Jaringan Host-Only</li>
+                        <li onclick="goToSection(7)">Bagian 7: Menjalankan Virtual Machine</li>
+                        <li onclick="goToSection(8)">Bagian 8: Instalasi Ubuntu 24.04.3 Desktop</li>
+                        <li onclick="goToSection(9)">Bagian 9: Accessibility Settings Ubuntu 24.04.3</li>
+                        <li onclick="goToSection(10)">Bagian 10: Post-Installation Setup</li>
+                        <li onclick="goToSection(11)">Bagian 11: Verifikasi Network Connection</li>
+                        <li onclick="goToSection(12)">Bagian 12: Instalasi XAMPP di Windows 10</li>
+                        <li onclick="goToSection(13)">Bagian 13: Instalasi XAMPP di Ubuntu</li>
+                        <li onclick="goToSection(14)">Bagian 14: Praktikum Transaksi Database</li>
+                        <li onclick="goToSection(15)">Bagian 15: Trigger Database</li>
+                        <li onclick="goToSection(16)">Bagian 16: Konfigurasi Replikasi Master-Slave</li>
+                        <li onclick="goToSection(17)">Bagian 17: Testing & Troubleshooting</li>
+                    </ol>
+                </div>
+                
+                <div class="alert alert-success">
+                    <span class="alert-icon">✅</span>
+                    <div>
+                        <strong>Selamat Datang!</strong> Panduan ini menggabungkan Praktikum T3-1 (Instalasi VirtualBox) dan T3-2 (Transaksi & Basis Data Terdistribusi) dengan panduan instalasi Ubuntu 24.04.3 terbaru. Ikuti setiap langkah dengan teliti untuk hasil optimal.
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 1 -->
+            <div class="section" id="section1">
+                <h2 class="section-title">📋 Bagian 1: Persiapan Awal & Download File</h2>
+                
+                <div class="subsection">
+                    <h3>Persyaratan Sistem</h3>
+                    <table class="table">
+                        <tr>
+                            <th>Komponen</th>
+                            <th>Minimum</th>
+                            <th>Direkomendasikan</th>
+                        </tr>
+                        <tr>
+                            <td><strong>Prosesor</strong></td>
+                            <td>Intel Core i3 atau setara</td>
+                            <td>Intel Core i5/i7 atau setara</td>
+                        </tr>
+                        <tr>
+                            <td><strong>RAM Host</strong></td>
+                            <td>4 GB</td>
+                            <td>8 GB atau lebih</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Storage</strong></td>
+                            <td>50 GB ruang kosong</td>
+                            <td>80 GB atau lebih</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Virtualisasi</strong></td>
+                            <td>VT-x atau AMD-V diaktifkan</td>
+                            <td>VT-x atau AMD-V diaktifkan</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Download File yang Diperlukan</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Download VirtualBox 6.0.24</h4>
+                            <p><strong>URL:</strong> https://www.virtualbox.org/wiki/Download_Old_Builds_6_0</p>
+                            <p><strong>File yang dicari:</strong> VirtualBox-6.0.24-Win (Windows)</p>
+                            <p><strong>Ukuran:</strong> ±120 MB</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Download Ubuntu 24.04.3 LTS Desktop ISO</h4>
+                            <p><strong>URL:</strong> https://ubuntu.com/download/desktop</p>
+                            <p><strong>File yang dicari:</strong> ubuntu-24.04.3-desktop-amd64.iso</p>
+                            <p><strong>Ukuran:</strong> ±4.2 GB</p>
+                            <p style="color: var(--warning-color); font-weight: bold;">⏱️ Estimasi waktu download: 15-45 menit (tergantung kecepatan internet)</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <span class="alert-icon">ℹ️</span>
+                    <div>
+                        <strong>Catatan Penting:</strong> Proses download mungkin memakan waktu. Pastikan koneksi internet stabil. Jika download terputus, biasanya bisa dilanjutkan otomatis.
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 2 -->
+            <div class="section" id="section2">
+                <h2 class="section-title">💻 Bagian 2: Instalasi VirtualBox 6.0.24</h2>
+                
+                <div class="subsection">
+                    <h3>Langkah Instalasi VirtualBox</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Jalankan Installer VirtualBox</h4>
+                            <ul>
+                                <li>Buka File Explorer dan navigasi ke folder tempat Anda download VirtualBox</li>
+                                <li>Double-click file installer <strong>VirtualBox-6.0.24-Win.exe</strong></li>
+                                <li>Klik <strong>Yes</strong> jika diminta User Account Control</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Welcome Screen</h4>
+                            <ul>
+                                <li>Klik <strong>Next</strong> untuk melanjutkan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Installation Folder</h4>
+                            <ul>
+                                <li>Biarkan lokasi default: <code>C:\Program Files\Oracle\VirtualBox</code></li>
+                                <li>Klik <strong>Next</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Custom Setup</h4>
+                            <ul>
+                                <li>Pastikan semua pilihan dicentang (Create Start Menu Entries, Desktop Shortcut, etc.)</li>
+                                <li>Klik <strong>Next</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Network Interfaces Warning</h4>
+                            <ul>
+                                <li>Dialog akan muncul memperingatkan bahwa network interface akan diatur ulang</li>
+                                <li>Klik <strong>Yes</strong> untuk melanjutkan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <h4>Ready to Install</h4>
+                            <ul>
+                                <li>Klik <strong>Install</strong> untuk memulai proses instalasi</li>
+                                <li>Tunggu hingga selesai (±1-2 menit)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">7</div>
+                        <div class="step-content">
+                            <h4>Install Device Software</h4>
+                            <ul>
+                                <li>Dialog akan muncul mengenai Oracle USB 2.0 Device Filter</li>
+                                <li>Klik <strong>Install</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">8</div>
+                        <div class="step-content">
+                            <h4>Setup Complete</h4>
+                            <ul>
+                                <li>Centang <strong>"Start Oracle VM VirtualBox after installation"</strong> jika ingin langsung membuka VirtualBox</li>
+                                <li>Klik <strong>Finish</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ VirtualBox 6.0.24 berhasil diinstal!
+                </div>
+            </div>
+
+            <!-- BAGIAN 3-11: Lanjutan instalasi Ubuntu -->
+            <div class="section" id="section3">
+                <h2 class="section-title">🆕 Bagian 3: Membuat Virtual Machine Ubuntu</h2>
+                
+                <div class="subsection">
+                    <h3>Membuat VM Baru di VirtualBox</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buka VirtualBox</h4>
+                            <ul>
+                                <li>Klik icon VirtualBox di Desktop atau Start Menu</li>
+                                <li>Tunggu hingga aplikasi terbuka penuh</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Klik Tombol "New"</h4>
+                            <ul>
+                                <li>Di jendela utama VirtualBox, klik tombol biru <strong>"New"</strong></li>
+                                <li>Atau gunakan menu: <strong>Machine → New</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Atur Nama dan Sistem Operasi</h4>
+                            <ul>
+                                <li><strong>Name:</strong> <code>Ubuntu-Praktikum-2024</code></li>
+                                <li><strong>Folder:</strong> Biarkan default atau pilih lokasi Anda</li>
+                                <li><strong>ISO Image:</strong> Klik folder → Pilih file Ubuntu 24.04.3 ISO yang sudah didownload</li>
+                                <li><strong>Type:</strong> Akan otomatis menjadi <strong>"Linux"</strong></li>
+                                <li><strong>Version:</strong> Pilih <strong>"Ubuntu (64-bit)"</strong></li>
+                                <li><strong>Jangan centang:</strong> "Skip Unattended Installation" (kita ingin setup manual)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Klik "Next" untuk Lanjut</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 4 -->
+            <div class="section" id="section4">
+                <h2 class="section-title">⚙️ Bagian 4: Alokasi Hardware (RAM & CPU)</h2>
+                
+                <div class="subsection">
+                    <h3>Pengaturan Memory dan Processor</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Alokasi RAM (Memory)</h4>
+                            <ul>
+                                <li><strong>Minimum:</strong> 2048 MB (2 GB)</li>
+                                <li><strong>Direkomendasikan:</strong> 4096 MB (4 GB) ← PILIH INI</li>
+                                <li><strong>Optimal:</strong> 6144 MB (6 GB) jika PC punya 16 GB+ RAM</li>
+                            </ul>
+                            <p style="margin-top: 10px; color: var(--text-light);">Gunakan slider atau ketik langsung nilai MB</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Alokasi Processor (CPU)</h4>
+                            <ul>
+                                <li><strong>CPU Cores:</strong> 2 cores (minimum) atau 4 cores (jika tersedia)</li>
+                                <li>Jangan alokasikan semua core komputer Anda</li>
+                                <li>Biarkan beberapa core untuk Windows host</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <span class="alert-icon">💡</span>
+                        <div>
+                            <strong>Panduan Alokasi:</strong> Jika PC punya 8 GB RAM, alokasikan 4 GB untuk VM. Jika 16 GB, alokasikan 6 GB. Untuk CPU, jika processor punya 8 cores, alokasikan 4 cores untuk VM.
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Klik "Next"</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 5 -->
+            <div class="section" id="section5">
+                <h2 class="section-title">💾 Bagian 5: Konfigurasi Hard Disk Virtual</h2>
+                
+                <div class="subsection">
+                    <h3>Pengaturan Virtual Hard Disk</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Pilih "Create a virtual hard disk now"</h4>
+                            <ul>
+                                <li>Pastikan opsi ini sudah dicentang</li>
+                                <li>Klik <strong>"Next"</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Pilih Format Hard Disk</h4>
+                            <ul>
+                                <li><strong>VDI (VirtualBox Disk Image)</strong> ← REKOMENDASI</li>
+                                <li>VMDK (jika ingin kompatibilitas VMware)</li>
+                                <li>VHD (jika ingin kompatibilitas Hyper-V)</li>
+                            </ul>
+                            <p style="margin-top: 10px;">Format VDI adalah native VirtualBox dan paling optimal untuk praktikum ini.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Pilih Tipe Alokasi Storage</h4>
+                            <table class="table" style="margin-top: 10px;">
+                                <tr>
+                                    <th>Opsi</th>
+                                    <th>Kelebihan</th>
+                                    <th>Kekurangan</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dynamically Allocated</strong> ✓</td>
+                                    <td>Hemat ruang disk host</td>
+                                    <td>Sedikit lebih lambat</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Fixed Size</strong></td>
+                                    <td>Akses disk lebih cepat</td>
+                                    <td>Mengalokasikan ruang penuh</td>
+                                </tr>
+                            </table>
+                            <p style="margin-top: 10px; font-weight: bold; color: var(--success-color);">✓ PILIH: Dynamically Allocated</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Tentukan Ukuran Hard Disk</h4>
+                            <ul>
+                                <li><strong>Minimum:</strong> 25 GB</li>
+                                <li><strong>Rekomendasi:</strong> 50 GB ← PILIH INI</li>
+                                <li><strong>Optimal:</strong> 60-80 GB jika ruang disk cukup</li>
+                            </ul>
+                            <p style="margin-top: 10px;">Ruang ini untuk Ubuntu + XAMPP + Database praktikum + update system</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Klik "Create" untuk Membuat Virtual Hard Disk</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 6 -->
+            <div class="section" id="section6">
+                <h2 class="section-title">🌐 Bagian 6: Konfigurasi Jaringan Host-Only</h2>
+                
+                <div class="subsection">
+                    <h3>Setting Network untuk Replikasi Database</h3>
+                    
+                    <div class="alert alert-warning">
+                        <span class="alert-icon">⚠️</span>
+                        <div>
+                            <strong>PENTING:</strong> Sesuai panduan UT resmi, gunakan <strong>Host-Only Adapter (192.168.56.x)</strong> untuk replikasi master-slave lokal. Ini lebih stabil dan sesuai dengan dokumentasi praktikum.
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buka Settings VM Ubuntu</h4>
+                            <ul>
+                                <li>Klik kanan pada VM <strong>"Ubuntu-Praktikum-2024"</strong></li>
+                                <li>Pilih <strong>"Settings"</strong></li>
+                                <li>Atau: Pilih VM → Klik Settings di toolbar</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Konfigurasi Network Adapter</h4>
+                            <ul>
+                                <li>Pilih menu <strong>"Network"</strong> di panel kiri</li>
+                                <li>Tab <strong>"Adapter 1"</strong> harus sudah terbuka</li>
+                                <li><strong>Attached to:</strong> Pilih <strong>"Host-only Adapter"</strong></li>
+                                <li><strong>Name:</strong> Pastikan <strong>"vboxnet0"</strong> terpilih</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Advanced Settings (Optional)</h4>
+                            <ul>
+                                <li>Klik <strong>"Advanced"</strong> untuk memperluas opsi</li>
+                                <li>Klik icon <strong>refresh</strong> (lingkaran hijau) di sebelah MAC Address</li>
+                                <li>Ini untuk mendapatkan MAC address baru dan mencegah konflik</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Klik OK untuk Menyimpan</h4>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tips-box">
+                    <h4>💡 Tentang Host-Only Adapter</h4>
+                    <ul>
+                        <li>Hanya host (Windows 10) dan VM (Ubuntu) yang terhubung</li>
+                        <li>IP range: 192.168.56.x (stabil dan tidak berubah)</li>
+                        <li>Perfect untuk praktikum master-slave database lokal</li>
+                        <li>Tidak perlu akses internet dari VM untuk replikasi bekerja</li>
+                        <li>Jika VM perlu internet nanti, bisa tambahkan Adapter 2 dengan NAT</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BAGIAN 7 -->
+            <div class="section" id="section7">
+                <h2 class="section-title">🚀 Bagian 7: Menjalankan Virtual Machine</h2>
+                
+                <div class="subsection">
+                    <h3>Start Ubuntu di VirtualBox</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Pilih VM dan Klik Start</h4>
+                            <ul>
+                                <li>Di daftar VM sebelah kiri, klik <strong>"Ubuntu-Praktikum-2024"</strong></li>
+                                <li>Klik tombol hijau <strong>"Start"</strong> di toolbar</li>
+                                <li>Atau double-click nama VM</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Tunggu Boot Process</h4>
+                            <ul>
+                                <li>VM akan membuka jendela baru dan mulai loading</li>
+                                <li>Anda akan melihat logo Ubuntu dan animasi loading</li>
+                                <li><strong>Waktu boot pertama: 2-5 menit</strong> (normal, tidak perlu khawatir)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <span class="alert-icon">ℹ️</span>
+                        <div>
+                            <strong>Tips:</strong> Jika layar VM tetap hitam lebih dari 5 menit, tunggu lebih lama. Boot pertama memang lambat karena dekompresi ISO dan deteksi hardware.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 8 -->
+            <div class="section" id="section8">
+                <h2 class="section-title">📦 Bagian 8: Instalasi Ubuntu 24.04.3 Desktop</h2>
+                
+                <div class="subsection">
+                    <h3>Proses Instalasi Ubuntu 24.04.3 LTS</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Pilih Bahasa Instalasi</h4>
+                            <ul>
+                                <li>Di kolom kiri, pilih <strong>"English"</strong> (rekomendasi untuk kompatibilitas)</li>
+                                <li>Atau pilih <strong>"Indonesian"</strong> jika Anda lebih nyaman</li>
+                                <li>Klik <strong>"Install Ubuntu"</strong> di bagian tengah bawah</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Accessibility Screen (NEW in 24.04.3!)</h4>
+                            <p><strong>Ubuntu 24.04.3 menampilkan fitur accessibility di awal instalasi:</strong></p>
+                            <ul>
+                                <li><strong>Seeing:</strong> Large text, High contrast, Screen magnifier, Zoom</li>
+                                <li><strong>Hearing:</strong> Visual alerts on sounds</li>
+                                <li><strong>Typing:</strong> On-screen keyboard, Sticky keys, Slow keys</li>
+                                <li><strong>Pointing and Clicking:</strong> Mouse keys, Dwell click, Click assist</li>
+                                <li><strong>Zoom:</strong> Desktop zoom level (100%, 125%, 150%, 200%)</li>
+                            </ul>
+                            <p style="margin-top: 10px;">Untuk praktikum ini: <strong>Skip accessibility settings</strong> (pilih default)</p>
+                            <p>Klik <strong>"Next"</strong></p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Keyboard Layout</h4>
+                            <ul>
+                                <li>Default: <strong>"English (US)"</strong> - rekomendasi ✓</li>
+                                <li>Atau gunakan <strong>"Detect"</strong> untuk auto-detect keyboard Anda</li>
+                                <li>Klik <strong>"Next"</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Connect to the Internet</h4>
+                            <ul>
+                                <li>Pilih WiFi atau Wired connection (opsional untuk instalasi)</li>
+                                <li>Atau skip jika tidak ada internet</li>
+                                <li>Internet membantu download updates dan drivers terbaru</li>
+                                <li>Klik <strong>"Next"</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Install Ubuntu (Choose Type)</h4>
+                            <ul>
+                                <li><strong>"Normal Installation"</strong> ← PILIH INI</li>
+                                <li>Includes: LibreOffice, media player, games, dll</li>
+                                <li>Centang: "Download updates while installing"</li>
+                                <li>Centang: "Install third-party software"</li>
+                                <li>Klik <strong>"Next"</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <h4>Installation Type (Disk Setup)</h4>
+                            <ul>
+                                <li>Pilih <strong>"Erase disk and install Ubuntu"</strong></li>
+                                <li>⚠️ PERHATIAN: Ini hanya menghapus virtual disk VM, bukan disk asli Windows Anda</li>
+                                <li>Klik <strong>"Install"</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">7</div>
+                        <div class="step-content">
+                            <h4>Konfirmasi Perubahan Disk</h4>
+                            <ul>
+                                <li>Dialog konfirmasi akan muncul</li>
+                                <li>Klik <strong>"Continue"</strong> untuk memulai write data ke disk</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 9 -->
+            <div class="section" id="section9">
+                <h2 class="section-title">♿ Bagian 9: Accessibility Settings Ubuntu 24.04.3</h2>
+                
+                <div class="subsection">
+                    <h3>Fitur Aksesibilitas Baru di Ubuntu 24.04.3</h3>
+                    
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✨</span>
+                        <div>
+                            <strong>NEW:</strong> Ubuntu 24.04.3 memiliki aksesibilitas yang jauh lebih baik dan terintegrasi di installer. Ini adalah peningkatan signifikan dari versi sebelumnya.
+                        </div>
+                    </div>
+                    
+                    <div class="subsection" style="background: #e8f4f8;">
+                        <h3>Opsi Aksesibilitas yang Tersedia:</h3>
+                        
+                        <div class="step">
+                            <div class="step-num">👁️</div>
+                            <div class="step-content">
+                                <h4>SEEING (Visual Impairments)</h4>
+                                <ul>
+                                    <li><strong>Large Text:</strong> Besarkan ukuran font di seluruh interface</li>
+                                    <li><strong>High Contrast:</strong> Tingkatkan kontras antara elemen UI</li>
+                                    <li><strong>Screen Magnifier:</strong> Zoom area tertentu untuk melihat lebih detail</li>
+                                    <li><strong>Desktop Zoom:</strong> Zoom level 100%, 125%, 150%, 200%</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-num">👂</div>
+                            <div class="step-content">
+                                <h4>HEARING (Hearing Impairments)</h4>
+                                <ul>
+                                    <li><strong>Visual Alerts:</strong> Tampilkan efek visual saat ada suara notifikasi</li>
+                                    <li>Ganti alert suara dengan visual feedback di desktop</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-num">⌨️</div>
+                            <div class="step-content">
+                                <h4>TYPING (Keyboard Support)</h4>
+                                <ul>
+                                    <li><strong>On-Screen Keyboard:</strong> Keyboard visual untuk klik mouse</li>
+                                    <li><strong>Sticky Keys:</strong> Tekan shortcut satu tombol sekaligus, bukan bersamaan</li>
+                                    <li><strong>Slow Keys:</strong> Delay antara menekan tombol dan input terdaftar</li>
+                                    <li><strong>Bounce Keys:</strong> Abaikan repeated key press yang cepat</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="step">
+                            <div class="step-num">🖱️</div>
+                            <div class="step-content">
+                                <h4>POINTING & CLICKING (Mouse Support)</h4>
+                                <ul>
+                                    <li><strong>Mouse Keys:</strong> Kontrol cursor dengan numeric keypad</li>
+                                    <li><strong>Dwell Click:</strong> Click otomatis saat mouse diam di satu tempat</li>
+                                    <li><strong>Click Assist:</strong> Right-click dengan hold tombol kiri mouse</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <span class="alert-icon">💡</span>
+                        <div>
+                            <strong>Untuk Praktikum:</strong> Anda tidak perlu mengaktifkan fitur aksesibilitas khusus untuk praktikum database ini. Biarkan settings default untuk instalasi yang bersih dan cepat.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 10 -->
+            <div class="section" id="section10">
+                <h2 class="section-title">✅ Bagian 10: Post-Installation Setup</h2>
+                
+                <div class="subsection">
+                    <h3>Setup Pertama Setelah Instalasi Selesai</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Tunggu Instalasi Selesai</h4>
+                            <ul>
+                                <li>Instalasi akan terus berjalan (copying files, configuring system)</li>
+                                <li>Waktu: ~10-20 menit tergantung kecepatan</li>
+                                <li>Setelah selesai, VM akan reboot otomatis</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Login Screen Muncul</h4>
+                            <ul>
+                                <li>Klik username Anda dari list</li>
+                                <li>Masukkan password yang Anda buat saat instalasi</li>
+                                <li>Klik enter atau tombol login</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>First Boot & Welcome Screen</h4>
+                            <ul>
+                                <li>Ubuntu akan menampilkan welcome screen</li>
+                                <li>Ada opsi untuk "Online Accounts" - skip (klik "Skip")</li>
+                                <li>Ada opsi "Livepatch" - skip (klik "Next")</li>
+                                <li>Ada opsi "Help Improve Ubuntu" - pilih sesuai preferensi</li>
+                                <li>Klik "Done" untuk selesai</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Install Guest Additions (IMPORTANT!)</h4>
+                            <ul>
+                                <li>Guest Additions meningkatkan performa dan user experience</li>
+                                <li>Di menu VirtualBox VM, klik <strong>"Devices"</strong></li>
+                                <li>Pilih <strong>"Insert Guest Additions CD Image..."</strong></li>
+                                <li>Dialog akan muncul - klik "Run" atau buka Files dan double-click</li>
+                                <li>Buka terminal di folder Guest Additions</li>
+                            </ul>
+                            <div class="code-block">cd /media/*/VBox* && sudo ./VBoxLinuxAdditions.run</div>
+                            <ul>
+                                <li>Masukkan password Ubuntu Anda</li>
+                                <li>Tunggu instalasi selesai (2-3 menit)</li>
+                                <li>Reboot VM</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Update System</h4>
+                            <ul>
+                                <li>Buka Terminal: <code>Ctrl+Alt+T</code> atau cari "Terminal" di search</li>
+                                <li>Jalankan command:</li>
+                            </ul>
+                            <div class="code-block">sudo apt update && sudo apt upgrade -y</div>
+                            <ul>
+                                <li>Masukkan password Anda</li>
+                                <li>Ketik "y" jika diminta konfirmasi</li>
+                                <li>Tunggu hingga selesai (5-15 menit)</li>
+                                <li>Jika prompt "restart required" muncul, reboot VM</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ Ubuntu 24.04.3 Desktop siap digunakan untuk praktikum!
+                </div>
+            </div>
+
+            <!-- BAGIAN 11 -->
+            <div class="section" id="section11">
+                <h2 class="section-title">🔍 Bagian 11: Verifikasi Network Connection</h2>
+                
+                <div class="subsection">
+                    <h3>Test Koneksi Host-Only Network (SESUAI PANDUAN UT)</h3>
+                    
+                    <div class="alert alert-warning">
+                        <span class="alert-icon">⚠️</span>
+                        <div>
+                            <strong>PENTING:</strong> Langkah ini sangat penting untuk memastikan replikasi database master-slave nanti berjalan dengan baik. Ikuti dengan teliti sesuai panduan UT resmi.
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Cek IP Address di Windows 10 (Host)</h4>
+                            <ul>
+                                <li>Buka Command Prompt: <code>Win+R</code> → ketik <code>cmd</code></li>
+                                <li>Jalankan command:</li>
+                            </ul>
+                            <div class="code-block">ipconfig</div>
+                            <ul>
+                                <li>Cari section: <strong>"Ethernet adapter VirtualBox Host-Only Network"</strong></li>
+                                <li>Catat IP Address Windows Anda (biasanya <strong>192.168.56.1</strong>)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Cek IP Address di Ubuntu (Guest)</h4>
+                            <ul>
+                                <li>Buka Terminal di Ubuntu: <code>Ctrl+Alt+T</code></li>
+                                <li>Jalankan command:</li>
+                            </ul>
+                            <div class="code-block">ip a</div>
+                            <p style="margin-top: 10px;">Atau:</p>
+                            <div class="code-block">ifconfig</div>
+                            <ul>
+                                <li>Cari adapter yang dimulai dengan <strong>"192.168.56."</strong></li>
+                                <li>Catat IP Address Ubuntu Anda (misal: <strong>192.168.56.104</strong>)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Test Koneksi dengan PING</h4>
+                            <p><strong>Dari Ubuntu, ping Windows:</strong></p>
+                            <div class="code-block">ping 192.168.56.1</div>
+                            <p style="margin-top: 10px;"><strong>Dari Windows, ping Ubuntu (Command Prompt):</strong></p>
+                            <div class="code-block">ping 192.168.56.104</div>
+                            <ul>
+                                <li>Jika hasilnya "Reply from..." → BERHASIL ✅</li>
+                                <li>Jika timeout atau "Host unreachable" → ADA MASALAH ❌</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <span class="alert-icon">✅</span>
+                        <div>
+                            <strong>JIKA BERHASIL:</strong> Lanjutkan ke praktikum transaksi database dan replikasi master-slave. Network sudah siap!
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <span class="alert-icon">❌</span>
+                        <div>
+                            <strong>JIKA GAGAL:</strong> Check firewall Windows (mungkin block ping), atau restart network adapter di Ubuntu: <code>sudo systemctl restart systemd-networkd</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN 12: PRAKTIKUM TRANSAKSI - PENGENALAN -->
+            <div class="section" id="section12">
+                <h2 class="section-title">💾 Bagian 12: Praktikum Transaksi - Pengenalan & Setup</h2>
+                
+                <div class="subsection">
+                    <h3>Pengenalan Transaksi Database (ACID Properties)</h3>
+                    
+                    <div class="alert alert-info">
+                        <span class="alert-icon">ℹ️</span>
+                        <div>
+                            <strong>ACID Properties:</strong>
+                            <ul style="margin-top: 10px; margin-left: 20px;">
+                                <li><strong>Atomicity:</strong> Transaksi dilakukan seluruhnya atau tidak sama sekali</li>
+                                <li><strong>Consistency:</strong> Data dalam basis data tetap konsisten</li>
+                                <li><strong>Isolation:</strong> Transaksi terisolasi dan tidak boleh diganggu transaksi lain</li>
+                                <li><strong>Durability:</strong> Data yang di-commit harus dijamin bertahan</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Persiapan Praktikum Transaksi</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Instalasi & Setup XAMPP</h4>
+                            <ul>
+                                <li><strong>Windows:</strong> Download dari https://www.apachefriends.org/ → Install → Jalankan XAMPP Control</li>
+                                <li><strong>Ubuntu:</strong> Gunakan terminal: <code>sudo ./xampp-installer.run</code></li>
+                                <li>Aktifkan Apache dan MySQL services</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Buka phpMyAdmin</h4>
+                            <ul>
+                                <li>Di browser: <code>http://localhost/phpmyadmin</code></li>
+                                <li>Buat database: <strong>rumahsakit</strong> (atau gunakan dari T3-1)</li>
+                                <li>Pastikan tabel menggunakan InnoDB (mendukung transaksi)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Verifikasi Storage Engine (PENTING!)</h4>
+                            <ul>
+                                <li>Di phpMyAdmin, pilih database <strong>rumahsakit</strong></li>
+                                <li>Lihat tabel-tabel yang ada → Kolom "Type" harus menunjukkan <strong>InnoDB</strong></li>
+                                <li>Jika masih MyISAM, ubah: Klik tabel → Operations → Change table type to InnoDB</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tips-box">
+                    <h4>💡 Catatan Penting</h4>
+                    <ul>
+                        <li>Transaksi hanya bekerja dengan storage engine InnoDB atau BDB</li>
+                        <li>Dalam praktikum ini, semua command SQL dimasukkan melalui menu <strong>SQL</strong> di phpMyAdmin</li>
+                        <li>Stored Procedure dibuat untuk menyimpan transaksi yang dapat dipanggil kembali</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- BAGIAN 13: PRAKTIKUM TRANSAKSI - COMMIT -->
+            <div class="section" id="section13">
+                <h2 class="section-title">💳 Bagian 13: Praktikum Transaksi - COMMIT</h2>
+                
+                <div class="subsection">
+                    <h3>Pemahaman COMMIT</h3>
+                    <p><strong>COMMIT:</strong> Perintah yang menandakan transaksi telah selesai dan data berhasil disimpan ke database.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Langkah-langkah Praktikum COMMIT</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buat Stored Procedure Transaksi1 (TANPA COMMIT)</h4>
+                            <p>Di phpMyAdmin, pilih database <strong>rumahsakit</strong> → menu <strong>Routines</strong> → <strong>Add Routine</strong></p>
+                            <p>Isikan dengan konfigurasi berikut:</p>
+                            
+                            <table class="table">
+                                <tr>
+                                    <th>Field</th>
+                                    <th>Nilai</th>
+                                </tr>
+                                <tr>
+                                    <td><strong>Routine name</strong></td>
+                                    <td>transaksi1</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Routine type</strong></td>
+                                    <td>PROCEDURE</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Definition</strong></td>
+                                    <td><span class="sql-highlight">Lihat code di bawah</span></td>
+                                </tr>
+                            </table>
+                            
+                            <p style="margin-top: 15px;">Pada field <strong>Definition</strong>, masukkan SQL code:</p>
+                            <div class="code-block">
+BEGIN
+    START TRANSACTION;
+    INSERT INTO pasien (idpasien, namapasien, alamatpasien, jeniskelamin) 
+    VALUES (6, 'Tito', 'Jl Pakis Haji No 25', 1);
+END
+                            </div>
+                            
+                            <p style="margin-top: 10px; color: var(--warning-color); font-weight: bold;">⚠️ PERHATIAN: Tidak ada COMMIT di sini! Ini akan ditunjukkan nanti.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Jalankan Transaksi1</h4>
+                            <ul>
+                                <li>Di phpMyAdmin, pilih database <strong>rumahsakit</strong></li>
+                                <li>Buka tab <strong>SQL</strong></li>
+                                <li>Ketik dan jalankan:</li>
+                            </ul>
+                            <div class="code-block">CALL transaksi1;</div>
+                            <ul>
+                                <li>Sistem akan menampilkan bahwa data dengan idpasien 6 telah diinsert</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Cek Tabel Pasien</h4>
+                            <ul>
+                                <li>Klik tabel <strong>pasien</strong> di sidebar</li>
+                                <li><strong>Hasil yang seharusnya terjadi:</strong> <span style="color: var(--error-color);">Data idpasien 6 TIDAK ada!</span></li>
+                                <li>Mengapa? Karena transaksi belum di-COMMIT, jadi perubahan data tidak tersimpan permanen</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Buat Stored Procedure Transaksi2 (DENGAN COMMIT)</h4>
+                            <p>Buat routine baru dengan nama <strong>transaksi2</strong>, Definition:</p>
+                            <div class="code-block">
+BEGIN
+    START TRANSACTION;
+    INSERT INTO pasien (idpasien, namapasien, alamatpasien, jeniskelamin) 
+    VALUES (6, 'Tito', 'Jl Pakis Haji No 25', 1);
+    COMMIT;
+END
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Jalankan Transaksi2</h4>
+                            <div class="code-block">CALL transaksi2;</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <h4>Cek Tabel Pasien Lagi</h4>
+                            <ul>
+                                <li>Klik tabel <strong>pasien</strong></li>
+                                <li><strong>Hasil yang seharusnya terjadi:</strong> <span style="color: var(--success-color);">Data idpasien 6 SEKARANG ADA!</span></li>
+                                <li>Mengapa? Karena transaksi sudah di-COMMIT, perubahan data tersimpan permanen di database</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ <strong>KESIMPULAN COMMIT:</strong> Jika transaksi belum COMMIT, data tidak akan tersimpan ke database. COMMIT adalah perintah untuk mengkonfirmasi dan menyimpan perubahan data secara permanen.
+                </div>
+            </div>
+            
+            <!-- BAGIAN 14: PRAKTIKUM TRANSAKSI - ROLLBACK -->
+            <div class="section" id="section14">
+                <h2 class="section-title">↩️ Bagian 14: Praktikum Transaksi - ROLLBACK</h2>
+                
+                <div class="subsection">
+                    <h3>Pemahaman ROLLBACK</h3>
+                    <p><strong>ROLLBACK:</strong> Perintah untuk membatalkan transaksi dan mengembalikan data ke kondisi sebelum transaksi dilakukan.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Langkah-langkah Praktikum ROLLBACK</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buat Stored Procedure Transaksi3 (UPDATE DENGAN ROLLBACK)</h4>
+                            <p>Kita akan coba update nama pasien dengan id 3 dari 'Popi' menjadi 'Danar', tapi akan di-ROLLBACK:</p>
+                            <div class="code-block">
+BEGIN
+    START TRANSACTION;
+    UPDATE pasien SET namapasien = 'Danar' WHERE idpasien = 3;
+    ROLLBACK;
+    SELECT * FROM pasien WHERE idpasien = 3;
+END
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Jalankan Transaksi3</h4>
+                            <div class="code-block">CALL transaksi3;</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Hasil yang Seharusnya Terjadi</h4>
+                            <ul>
+                                <li>SELECT akan menampilkan data pasien id 3 dengan nama masih <strong>'Popi'</strong> (belum berubah)</li>
+                                <li>Mengapa? Karena UPDATE di-ROLLBACK sebelum di-COMMIT</li>
+                                <li>ROLLBACK membatalkan semua perubahan dalam transaksi</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Buat Stored Procedure Transaksi4 (INSERT + UPDATE + ROLLBACK PARTIAL)</h4>
+                            <p>Kali ini: INSERT data baru, ROLLBACK, terus UPDATE data lain tanpa ROLLBACK:</p>
+                            <div class="code-block">
+BEGIN
+    START TRANSACTION;
+    INSERT INTO pasien (idpasien, namapasien, alamatpasien, jeniskelamin) 
+    VALUES (8, 'Budi', 'Jl Sudirman', 1);
+    ROLLBACK;
+    UPDATE pasien SET namapasien = 'Septin' WHERE idpasien = 3;
+    COMMIT;
+END
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Jalankan Transaksi4</h4>
+                            <div class="code-block">CALL transaksi4;</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <h4>Hasil yang Seharusnya Terjadi</h4>
+                            <ul>
+                                <li><strong>INSERT dibatalkan:</strong> Tidak ada pasien id 8 di tabel (karena ROLLBACK)</li>
+                                <li><strong>UPDATE tersimpan:</strong> Pasien id 3 sekarang bernama 'Septin' (karena ada COMMIT setelahnya)</li>
+                                <li>ROLLBACK hanya membatalkan command sebelumnya, bukan seluruh transaksi</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ <strong>KESIMPULAN ROLLBACK:</strong> ROLLBACK membatalkan transaksi dan mengembalikan data ke kondisi sebelumnya. Hanya perubahan yang sudah di-COMMIT yang akan tersimpan permanen.
+                </div>
+            </div>
+            
+            <!-- BAGIAN 15: PRAKTIKUM TRANSAKSI - SAVEPOINT -->
+            <div class="section" id="section15">
+                <h2 class="section-title">🏷️ Bagian 15: Praktikum Transaksi - SAVEPOINT / CHECKPOINT</h2>
+                
+                <div class="subsection">
+                    <h3>Pemahaman SAVEPOINT</h3>
+                    <p><strong>SAVEPOINT (Checkpoint):</strong> Menandai titik tertentu dalam transaksi. Kita bisa ROLLBACK ke savepoint tertentu, bukan ke awal transaksi.</p>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Langkah-langkah Praktikum SAVEPOINT</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buat Stored Procedure Transaksi5 (DENGAN SAVEPOINT)</h4>
+                            <p>Kita akan INSERT 3 data, tapi yang ke-2 akan di-ROLLBACK ke savepoint point1:</p>
+                            <div class="code-block">
+BEGIN
+    START TRANSACTION;
+    INSERT INTO pasien (idpasien, namapasien, alamatpasien, jeniskelamin) 
+    VALUES (7, 'Ari', 'Jl Ahmad Yani', 1);
+    SAVEPOINT point1;
+    
+    INSERT INTO pasien (idpasien, namapasien, alamatpasien, jeniskelamin) 
+    VALUES (8, 'Budi', 'Jl Gatot Subroto', 1);
+    ROLLBACK TO SAVEPOINT point1;
+    
+    INSERT INTO pasien (idpasien, namapasien, alamatpasien, jeniskelamin) 
+    VALUES (9, 'Citra', 'Jl Merdeka', 2);
+    COMMIT;
+END
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Jalankan Transaksi5</h4>
+                            <div class="code-block">CALL transaksi5;</div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Hasil yang Seharusnya Terjadi</h4>
+                            <ul>
+                                <li><strong>Pasien id 7 (Ari):</strong> ADA (INSERT pertama sebelum savepoint)</li>
+                                <li><strong>Pasien id 8 (Budi):</strong> TIDAK ADA (INSERT ke-2 di-rollback ke point1)</li>
+                                <li><strong>Pasien id 9 (Citra):</strong> ADA (INSERT ke-3 setelah rollback)</li>
+                            </ul>
+                            <p style="margin-top: 10px;">SAVEPOINT memungkinkan kontrol granular: rollback ke titik tertentu tanpa membatalkan seluruh transaksi!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ <strong>KESIMPULAN SAVEPOINT:</strong> SAVEPOINT adalah checkpoint dalam transaksi. Gunakan ROLLBACK TO SAVEPOINT untuk membatalkan ke titik tertentu, bukan ke awal transaksi.
+                </div>
+            </div>
+            
+            <!-- BAGIAN 16: PRAKTIKUM TRIGGER -->
+            <div class="section" id="section16">
+                <h2 class="section-title">⚡ Bagian 16: Praktikum TRIGGER Database</h2>
+                
+                <div class="subsection">
+                    <h3>Pemahaman TRIGGER</h3>
+                    <p><strong>TRIGGER:</strong> Perintah otomatis yang dijalankan sebelum atau sesudah event tertentu (INSERT, UPDATE, DELETE) pada tabel.</p>
+                    
+                    <table class="table">
+                        <tr>
+                            <th>Jenis Trigger</th>
+                            <th>Penjelasan</th>
+                        </tr>
+                        <tr>
+                            <td>BEFORE INSERT</td>
+                            <td>Dijalankan SEBELUM data diinsert</td>
+                        </tr>
+                        <tr>
+                            <td>AFTER INSERT</td>
+                            <td>Dijalankan SESUDAH data diinsert</td>
+                        </tr>
+                        <tr>
+                            <td>BEFORE UPDATE</td>
+                            <td>Dijalankan SEBELUM data diupdate</td>
+                        </tr>
+                        <tr>
+                            <td>AFTER UPDATE</td>
+                            <td>Dijalankan SESUDAH data diupdate</td>
+                        </tr>
+                        <tr>
+                            <td>BEFORE DELETE</td>
+                            <td>Dijalankan SEBELUM data dihapus</td>
+                        </tr>
+                        <tr>
+                            <td>AFTER DELETE</td>
+                            <td>Dijalankan SESUDAH data dihapus</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Persiapan: Membuat Tabel Obat & Transaksi Obat</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buat Tabel OBAT</h4>
+                            <p>Di phpMyAdmin, SQL tab, copy-paste:</p>
+                            <div class="code-block">
+CREATE TABLE obat (
+    idobat INT(6) AUTO_INCREMENT PRIMARY KEY,
+    kodeobat VARCHAR(5),
+    namaobat VARCHAR(30),
+    harga INT(10),
+    stok INT(5)
+);
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Buat Tabel TRANSAKSI_OBAT</h4>
+                            <div class="code-block">
+CREATE TABLE transaksiobat (
+    idtransaksi INT(3) AUTO_INCREMENT PRIMARY KEY,
+    idpasien INT(3),
+    idobat INT(3),
+    jumlah INT(10),
+    totalharga INT(10),
+    FOREIGN KEY (idpasien) REFERENCES pasien(idpasien),
+    FOREIGN KEY (idobat) REFERENCES obat(idobat)
+);
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Insert Data Obat (Minimal 3 data)</h4>
+                            <div class="code-block">
+INSERT INTO obat (kodeobat, namaobat, harga, stok) VALUES
+('A001', 'Amoxillin', 50, 20),
+('A002', 'Paracetamol', 10, 100),
+('A003', 'Antibiotik', 75, 15);
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Praktikum TRIGGER: Otomatis Kurangi Stok Obat</h3>
+                    
+                    <div class="alert alert-warning">
+                        <span class="alert-icon">📝</span>
+                        <div>
+                            <strong>Kasus:</strong> Saat pasien membeli obat dan data diinsert ke tabel transaksiobat, stok obat di tabel obat harus otomatis berkurang sesuai jumlah yang dibeli.
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Buat TRIGGER tgjual (After Insert)</h4>
+                            <p>Di phpMyAdmin, pilih database → tab SQL, copy-paste:</p>
+                            <div class="code-block">
+DELIMITER $$
+
+CREATE TRIGGER tgjual AFTER INSERT ON transaksiobat
+FOR EACH ROW
+BEGIN
+    START TRANSACTION;
+    UPDATE obat 
+    SET stok = stok - NEW.jumlah 
+    WHERE idobat = NEW.idobat;
+END$$
+
+DELIMITER ;
+                            </div>
+                            <p style="margin-top: 10px; color: var(--text-light);">Penjelasan:</p>
+                            <ul>
+                                <li><strong>tgjual:</strong> Nama trigger</li>
+                                <li><strong>AFTER INSERT ON transaksiobat:</strong> Dijalankan sesudah insert data ke transaksiobat</li>
+                                <li><strong>NEW.jumlah:</strong> Nilai jumlah yang baru diinsert</li>
+                                <li><strong>NEW.idobat:</strong> ID obat yang baru diinsert</li>
+                                <li><strong>UPDATE obat SET stok = stok - NEW.jumlah:</strong> Kurangi stok obat</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Cek Stok Obat SEBELUM (Baseline)</h4>
+                            <div class="code-block">SELECT * FROM obat;</div>
+                            <p style="margin-top: 10px;">Catat stok sebelumnya (misal: Amoxillin = 20)</p>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Insert Data ke Tabel TRANSAKSI_OBAT</h4>
+                            <p>Simulasi: Pasien beli Amoxillin 5 buah</p>
+                            <div class="code-block">
+INSERT INTO transaksiobat (idpasien, idobat, jumlah, totalharga) 
+VALUES (1, 1, 5, 250);
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Cek Stok Obat SESUDAH (Hasil Trigger)</h4>
+                            <div class="code-block">SELECT * FROM obat WHERE idobat = 1;</div>
+                            <ul>
+                                <li><strong>Hasil yang seharusnya:</strong> Stok Amoxillin berubah dari 20 menjadi <strong>15</strong> (20-5)</li>
+                                <li>Ini terjadi otomatis karena TRIGGER tgjual berjalan!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ <strong>KESIMPULAN TRIGGER:</strong> TRIGGER mengotomatisasi logika business logic di database. Saat event terjadi (INSERT), trigger secara otomatis menjalankan perintah lain (UPDATE stok) tanpa perlu intervensi manual.
+                </div>
+            </div>
+            
+            <!-- BAGIAN 17: REPLIKASI MASTER-SLAVE SETUP -->
+            <div class="section" id="section17">
+                <h2 class="section-title">🔄 Bagian 17: Replikasi Master-Slave - Konfigurasi Windows (Master)</h2>
+                
+                <div class="alert alert-warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>PENTING:</strong> Sesuai panduan UT resmi, gunakan <strong>Host-Only Adapter (192.168.56.x)</strong> untuk network konfigurasi. Pastikan Windows (192.168.56.1) dan Ubuntu (192.168.56.x) sudah saling terhubung dengan ping test sebelum melanjutkan.
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Langkah 1: Konfigurasi MASTER (Windows 10)</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Aktifkan Apache & MySQL di XAMPP Control</h4>
+                            <ul>
+                                <li>Buka XAMPP Control Panel</li>
+                                <li>Klik START untuk Apache dan MySQL (status harus RUNNING, warna hijau)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Buka phpMyAdmin</h4>
+                            <ul>
+                                <li>Browser: <code>http://localhost/phpmyadmin</code></li>
+                                <li>Menu atas: Cari menu <strong>"Replication"</strong></li>
+                                <li>Di bagian "Master replication", klik <strong>"Configure it"</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Pilih Database untuk Replikasi</h4>
+                            <ul>
+                                <li>Dropdown akan menampilkan database yang tersedia</li>
+                                <li>Pilih: <strong>rumahsakit</strong> (database praktikum)</li>
+                                <li>Sistem akan generate 4 baris perintah konfigurasi</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Copy Perintah Konfigurasi (JANGAN KLIK GO DULU!)</h4>
+                            <ul>
+                                <li>Sorot dan copy semua 4 baris perintah yang muncul</li>
+                                <li><span style="color: var(--warning-color); font-weight: bold;">PENTING: Jangan klik GO dulu!</span> Kita harus paste ke file my.ini terlebih dahulu</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Edit File my.ini (XAMPP Config)</h4>
+                            <ul>
+                                <li>Di XAMPP Control Panel, klik kanan pada tombol <strong>"Config"</strong></li>
+                                <li>Pilih <strong>"my.ini"</strong> (akan membuka di text editor)</li>
+                                <li>Paste 4 baris perintah yang tadi di-copy</li>
+                                <li>Save file (Ctrl+S)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <h4>Restart MySQL Service</h4>
+                            <ul>
+                                <li>Di XAMPP Control Panel, klik STOP pada MySQL (status jadi STOPPED)</li>
+                                <li>Tunggu 2-3 detik, klik START MySQL lagi (status jadi RUNNING)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">7</div>
+                        <div class="step-content">
+                            <h4>Kembali ke phpMyAdmin & Klik GO</h4>
+                            <ul>
+                                <li>Refresh halaman phpMyAdmin Replication</li>
+                                <li>Klik tombol <strong>"GO"</strong> untuk mengonfirmasi konfigurasi master</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">8</div>
+                        <div class="step-content">
+                            <h4>Catat Master Status Information</h4>
+                            <ul>
+                                <li>Di menu Replication → "Show master status"</li>
+                                <li>Catat (SANGAT PENTING untuk konfigurasi Ubuntu):</li>
+                                <li style="margin-top: 10px; padding: 10px; background: var(--bg-light); border-radius: 5px;">
+                                    <strong>File:</strong> (misal: mysql-bin.000014)<br/>
+                                    <strong>Position:</strong> (misal: 2926)
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">9</div>
+                        <div class="step-content">
+                            <h4>Buat User Account Replikasi</h4>
+                            <ul>
+                                <li>Menu phpMyAdmin → "User accounts"</li>
+                                <li>Klik <strong>"Add user account"</strong></li>
+                                <li>Isi field:
+                                    <ul>
+                                        <li><strong>Username:</strong> prodisi (atau nama lain pilihan Anda)</li>
+                                        <li><strong>Hostname:</strong> 192.168.56.104 (IP Ubuntu VM)</li>
+                                        <li><strong>Password:</strong> prodisi (atau password pilihan)</li>
+                                        <li><strong>Checkboxes:</strong> Centang "Replication client" dan "Replication slave"</li>
+                                    </ul>
+                                </li>
+                                <li>Klik GO untuk save</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">10</div>
+                        <div class="step-content">
+                            <h4>Export Database Rumah Sakit</h4>
+                            <ul>
+                                <li>Pilih database <strong>rumahsakit</strong></li>
+                                <li>Menu atas: <strong>"Export"</strong></li>
+                                <li>Klik <strong>"GO"</strong></li>
+                                <li>File .sql akan di-download (save ke USB/folder yang mudah diakses)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ <strong>Master (Windows) sudah dikonfigurasi!</strong> Sekarang konfigurasi Slave (Ubuntu).
+                </div>
+            </div>
+            
+            <!-- BAGIAN 18: REPLIKASI MASTER-SLAVE SETUP UBUNTU & TESTING -->
+            <div class="section" id="section18">
+                <h2 class="section-title">🔄 Bagian 18: Replikasi Master-Slave - Konfigurasi Ubuntu (Slave) & Testing</h2>
+                
+                <div class="subsection">
+                    <h3>Langkah 2: Konfigurasi SLAVE (Ubuntu)</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Setup XAMPP di Ubuntu (jika belum)</h4>
+                            <ul>
+                                <li>Terminal: <code>cd /opt/lampp && sudo ./manager-linux-x64.run</code></li>
+                                <li>Atau buka dari Applications → XAMPP Manager</li>
+                                <li>Tab "Manage Servers" → Start Apache & MySQL</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Akses phpMyAdmin di Ubuntu</h4>
+                            <ul>
+                                <li>Browser Firefox: <code>http://localhost/phpmyadmin</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Buat Database Baru: rumahsakit</h4>
+                            <ul>
+                                <li>Menu "Databases" → Ketik "rumahsakit" → Klik "Create"</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Import File Dump dari Windows</h4>
+                            <ul>
+                                <li>Pilih database <strong>rumahsakit</strong></li>
+                                <li>Menu "Import" → Browse → Cari file .sql yang di-export dari Windows</li>
+                                <li>Klik "GO" untuk import</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">5</div>
+                        <div class="step-content">
+                            <h4>Konfigurasi Slave di phpMyAdmin</h4>
+                            <ul>
+                                <li>Menu "Replication" → "Slave replication" → Klik "Configure it"</li>
+                                <li>Form akan muncul dengan field:
+                                    <ul>
+                                        <li><strong>Server-id:</strong> (biarkan default atau isi dengan angka unik, misal: 2)</li>
+                                        <li><strong>User name:</strong> prodisi (sesuai yang dibuat di master)</li>
+                                        <li><strong>Password:</strong> prodisi (sesuai password di master)</li>
+                                        <li><strong>Host:</strong> 192.168.56.1 (IP Windows Master)</li>
+                                        <li><strong>Port:</strong> 3306 (default MySQL port)</li>
+                                    </ul>
+                                </li>
+                                <li><span style="color: var(--warning-color); font-weight: bold;">JANGAN KLIK GO DULU!</span> Ada langkah config file dulu</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">6</div>
+                        <div class="step-content">
+                            <h4>Copy Server-id dan Edit File my.cnf</h4>
+                            <ul>
+                                <li>Di form Slave Configuration, copy nilai "server-id"</li>
+                                <li>Buka XAMPP Manager → MySQL → Configure → Open Conf File</li>
+                                <li>Cari baris yang ada "server-id" → uncomment (hapus #) dan sesuaikan nilainya</li>
+                                <li>Tambahkan baris baru: <code>replicate-do-db=rumahsakit</code></li>
+                                <li>Save file</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">7</div>
+                        <div class="step-content">
+                            <h4>Ubah Permission File my.cnf (Penting!)</h4>
+                            <ul>
+                                <li>Terminal: <code>cd /opt/lampp/etc</code></li>
+                                <li><code>sudo chmod a+rw my.cnf</code></li>
+                                <li>Masukkan password Ubuntu Anda</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">8</div>
+                        <div class="step-content">
+                            <h4>Restart MySQL Service & Klik GO</h4>
+                            <ul>
+                                <li>XAMPP Manager → Restart MySQL service</li>
+                                <li>Kembali ke phpMyAdmin Slave Configuration → Klik "GO"</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">9</div>
+                        <div class="step-content">
+                            <h4>Ubah Master Configuration (Terminal)</h4>
+                            <ul>
+                                <li>Terminal: <code>cd /opt/lampp/bin</code></li>
+                                <li><code>sudo ./mysql -u root</code></li>
+                                <li>Ketik command (sesuaikan dengan Master Status dari Windows):</li>
+                            </ul>
+                            <div class="code-block">
+CHANGE MASTER TO
+MASTER_HOST='192.168.56.1',
+MASTER_USER='prodisi',
+MASTER_PASSWORD='prodisi',
+MASTER_LOG_FILE='mysql-bin.000014',
+MASTER_LOG_POS=2926;
+                            </div>
+                            <ul>
+                                <li><span style="color: var(--warning-color);">⚠️ GANTI nilai File dan Position sesuai data yang dicatat dari Master!</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">10</div>
+                        <div class="step-content">
+                            <h4>Mulai Slave Service</h4>
+                            <div class="code-block">
+START SLAVE;
+SHOW SLAVE STATUS\G
+                            </div>
+                            <ul>
+                                <li>Cari dua field penting:
+                                    <ul>
+                                        <li><strong>Slave_IO_Running:</strong> Harus "Yes"</li>
+                                        <li><strong>Slave_SQL_Running:</strong> Harus "Yes"</li>
+                                    </ul>
+                                </li>
+                                <li>Jika keduanya Yes → Replikasi siap bekerja!</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="subsection">
+                    <h3>Langkah 3: Testing Replikasi Master-Slave</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">1</div>
+                        <div class="step-content">
+                            <h4>Di Windows (Master): Insert Data ke Tabel Obat</h4>
+                            <ul>
+                                <li>phpMyAdmin → database rumahsakit → SQL tab</li>
+                                <li>Insert data baru:</li>
+                            </ul>
+                            <div class="code-block">
+INSERT INTO obat (kodeobat, namaobat, harga, stok) 
+VALUES ('A005', 'Demam', 150, 100);
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">2</div>
+                        <div class="step-content">
+                            <h4>Di Windows (Master): Cek Tabel Obat</h4>
+                            <ul>
+                                <li>Klik tabel <strong>obat</strong> → Data baru "Demam" harus terlihat</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">3</div>
+                        <div class="step-content">
+                            <h4>Di Ubuntu (Slave): Cek Tabel Obat</h4>
+                            <ul>
+                                <li>phpMyAdmin → database rumahsakit → Klik tabel <strong>obat</strong></li>
+                                <li><strong>HASIL YANG DIHARAPKAN:</strong> Data "Demam" juga MUNCUL di Ubuntu!</li>
+                                <li>Ini menunjukkan replikasi berhasil - perubahan di Master otomatis ter-copy ke Slave</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">4</div>
+                        <div class="step-content">
+                            <h4>Testing Update & Delete (Opsional)</h4>
+                            <ul>
+                                <li>Di Windows: Ubah harga obat Demam menjadi 200</li>
+                                <li>Di Ubuntu: Cek apakah harga juga berubah menjadi 200</li>
+                                <li>Di Windows: Hapus obat tertentu</li>
+                                <li>Di Ubuntu: Cek apakah data juga terhapus</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="success-badge">
+                    ✅ <strong>REPLIKASI BERHASIL!</strong> Database di Master (Windows) dan Slave (Ubuntu) sudah tersinkronisasi. Setiap perubahan di Master akan otomatis ter-copy ke Slave.
+                </div>
+                
+                <div class="tips-box">
+                    <h4>📋 Troubleshooting Replikasi</h4>
+                    <ul>
+                        <li><strong>Slave_IO_Running = No:</strong> Cek koneksi network, user account, password</li>
+                        <li><strong>Slave_SQL_Running = No:</strong> Cek SQL error di SHOW SLAVE STATUS</li>
+                        <li><strong>Data tidak tersinkronisasi:</strong> Cek nilai MASTER_LOG_FILE dan MASTER_LOG_POS, pastikan benar dari Master Status</li>
+                        <li><strong>Tidak bisa konek dari Ubuntu ke Windows:</strong> Cek firewall Windows, pastikan MySQL port 3306 terbuka</li>
+                    </ul>
+                </div>
+            </div>
+                
+                <div class="subsection">
+                    <h3>Tahapan Praktikum Database (T3-1 & T3-2)</h3>
+                    
+                    <div class="tab-container">
+                        <div class="tab-buttons">
+                            <button class="tab-btn active" onclick="switchTab(event, 'xampp')">Instalasi XAMPP</button>
+                            <button class="tab-btn" onclick="switchTab(event, 'transaksi')">Praktikum Transaksi</button>
+                            <button class="tab-btn" onclick="switchTab(event, 'replikasi')">Praktikum Replikasi</button>
+                        </div>
+                        
+                        <div id="xampp" class="tab-content active">
+                            <h4>Instalasi XAMPP di Windows 10 & Ubuntu</h4>
+                            <div class="step">
+                                <div class="step-num">1</div>
+                                <div class="step-content">
+                                    <h4>Windows 10: Download & Install XAMPP</h4>
+                                    <ul>
+                                        <li>Download dari: https://www.apachefriends.org/</li>
+                                        <li>Download versi Windows (apache, mysql, php)</li>
+                                        <li>Jalankan installer, ikuti langkah-langkah</li>
+                                        <li>Aktifkan Apache dan MySQL dari Control Panel XAMPP</li>
+                                        <li>Buka browser: <code>localhost/phpmyadmin</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="step">
+                                <div class="step-num">2</div>
+                                <div class="step-content">
+                                    <h4>Ubuntu: Install XAMPP via Terminal</h4>
+                                    <div class="code-block">
+# Download
+cd ~/Downloads
+wget https://www.apachefriends.org/xampp-linux-x64-installer.run
+
+# Buat executable
+chmod +x xampp-linux-x64-installer.run
+
+# Install (perlu sudo)
+sudo ./xampp-linux-x64-installer.run
+                                    </div>
+                                    <ul>
+                                        <li>Atau buka XAMPP Control Panel GUI dari Applications</li>
+                                        <li>Start Apache dan MySQL services</li>
+                                        <li>Akses phpMyAdmin: <code>localhost/phpmyadmin</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="transaksi" class="tab-content">
+                            <h4>Praktikum Transaksi Database (T3-2)</h4>
+                            <ul style="margin-left: 20px;">
+                                <li><strong>1. Create Database:</strong> Buat database "rumahsakit" dengan table pasien, dokter, etc (sesuai ERD T3-1)</li>
+                                <li><strong>2. COMMIT:</strong> Membuat transaksi yang data insert-nya disimpan ke database</li>
+                                <li><strong>3. ROLLBACK:</strong> Membuat transaksi yang data insert-nya dibatalkan</li>
+                                <li><strong>4. SAVEPOINT/CHECKPOINT:</strong> Membuat transaksi dengan rollback ke checkpoint tertentu</li>
+                                <li><strong>5. TRIGGER:</strong> Membuat trigger AFTER INSERT untuk update stok otomatis</li>
+                            </ul>
+                            <p style="margin-top: 20px;">📖 <strong>Referensi:</strong> Buka PDF Panduan Prak T3-2 untuk detail SQL code dan langkah-langkah implementasi</p>
+                        </div>
+                        
+                        <div id="replikasi" class="tab-content">
+                            <h4>Praktikum Replikasi Master-Slave (T3-2)</h4>
+                            <ul style="margin-left: 20px;">
+                                <li><strong>Master (Windows 10):</strong>
+                                    <ul>
+                                        <li>Konfigurasi my.ini dengan server-id dan binary logging</li>
+                                        <li>Buat replication user account</li>
+                                        <li>Export database rumahsakit ke file .sql</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Slave (Ubuntu):</strong>
+                                    <ul>
+                                        <li>Import database rumahsakit dari master</li>
+                                        <li>Konfigurasi my.cnf dengan server-id dan replicate-do-db</li>
+                                        <li>Setup CHANGE MASTER TO dengan master hostname, user, password</li>
+                                        <li>START SLAVE untuk mulai replikasi</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Testing:</strong> Insert/update data di master, lihat hasilnya langsung di slave</li>
+                            </ul>
+                            <p style="margin-top: 20px;">📖 <strong>Referensi:</strong> Buka PDF Panduan Prak T3-2 untuk command SQL dan konfigurasi lengkap</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BAGIAN AKHIR: TROUBLESHOOTING -->
+            <div class="section" id="section18">
+                <h2 class="section-title">🔧 Troubleshooting & FAQ</h2>
+                
+                <div class="subsection">
+                    <h3>Solusi Masalah Umum</h3>
+                    
+                    <div class="step">
+                        <div class="step-num">❓</div>
+                        <div class="step-content">
+                            <h4>VM tidak mau start</h4>
+                            <p><strong>Solusi:</strong></p>
+                            <ul>
+                                <li>Tunggu lebih lama (boot pertama bisa sampai 5 menit)</li>
+                                <li>Pastikan VirtualBox sudah terinstall dengan benar</li>
+                                <li>Cek hardware virtualization di BIOS (VT-x atau AMD-V)</li>
+                                <li>Restart VirtualBox</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">❓</div>
+                        <div class="step-content">
+                            <h4>Network ping tidak berjalan</h4>
+                            <p><strong>Solusi:</strong></p>
+                            <ul>
+                                <li>Pastikan Host-Only Adapter sudah dikonfigurasi</li>
+                                <li>Check firewall Windows (disable sementara untuk testing)</li>
+                                <li>Restart network adapter di Ubuntu: <code>sudo systemctl restart systemd-networkd</code></li>
+                                <li>Buat Host-Only Network baru di VirtualBox: File → Tools → Network Manager</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">❓</div>
+                        <div class="step-content">
+                            <h4>phpMyAdmin tidak bisa diakses</h4>
+                            <p><strong>Solusi:</strong></p>
+                            <ul>
+                                <li>Pastikan Apache dan MySQL sudah aktif di XAMPP</li>
+                                <li>Coba: <code>http://localhost/phpmyadmin</code> (di Ubuntu) atau <code>http://127.0.0.1/phpmyadmin</code></li>
+                                <li>Check port 80 tidak digunakan aplikasi lain</li>
+                                <li>Restart XAMPP services</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-num">❓</div>
+                        <div class="step-content">
+                            <h4>Replikasi database tidak berjalan</h4>
+                            <p><strong>Solusi:</strong></p>
+                            <ul>
+                                <li>Cek Slave_IO_Running dan Slave_SQL_Running di phpMyAdmin replication status</li>
+                                <li>Jika ada error, baca error message di "Show Slave Status"</li>
+                                <li>Pastikan IP address master dan port 3306 benar</li>
+                                <li>Check replication user account sudah dibuat di master</li>
+                                <li>Restart services: <code>STOP SLAVE;</code> → <code>START SLAVE;</code></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Tips Umum:</strong> Jika masalah tidak teratasi setelah coba solusi di atas, buat VM baru dari awal. Prosesnya hanya 30 menit dan lebih baik daripada troubleshoot berkepanjangan. Gunakan snapshot sebelum praktikum untuk backup.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation Akhir -->
+            <div class="section-nav">
+                <button class="nav-btn nav-btn-secondary" id="prevBtn2" onclick="changeSection(-1)">← Sebelumnya</button>
+                <button class="nav-btn nav-btn-primary" id="nextBtn2" onclick="changeSection(1)">Selanjutnya →</button>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="downloadHTML()">⬇️ Download Tutorial HTML</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak Halaman</button>
+                <button class="btn btn-primary" onclick="resetTutorial()">🔄 Ke Awal</button>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>📚 Panduan Lengkap Praktikum MSIM4206 T3-1 & T3-2 - VirtualBox 6.0.24 • Ubuntu 24.04.3 • Database Transaksi & Replikasi</p>
+            <p>📖 Universitas Terbuka | Program Studi Sistem Informasi</p>
+            <p style="margin-top: 15px; font-size: 0.95em;">✅ Berdasarkan Panduan Praktikum UT Resmi (Edisi 2) + Ubuntu 24.04.3 Documentation</p>
+            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Dibuat untuk memudahkan pembelajaran praktikum basis data mahasiswa UT | November 2025</p>
+        </div>
+    </div>
+    
+    <script>
+        let currentSection = 0;
+        const totalSections = 19;
+        
+        function showSection(n) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(s => s.classList.remove('active'));
+            
+            if (n < 0) currentSection = 0;
+            if (n >= totalSections) currentSection = totalSections - 1;
+            
+            document.getElementById(`section${currentSection}`).classList.add('active');
+            
+            document.getElementById('prevBtn').disabled = (currentSection === 0);
+            document.getElementById('prevBtn2').disabled = (currentSection === 0);
+            document.getElementById('nextBtn').disabled = (currentSection === totalSections - 1);
+            document.getElementById('nextBtn2').disabled = (currentSection === totalSections - 1);
+            
+            const progress = ((currentSection + 1) / totalSections) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+            
+            window.scrollTo(0, 0);
+        }
+        
+        function changeSection(direction) {
+            currentSection += direction;
+            showSection(currentSection);
+        }
+        
+        function goToSection(n) {
+            currentSection = n;
+            showSection(currentSection);
+        }
+        
+        function switchTab(evt, tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            
+            tabContents.forEach(tab => tab.classList.remove('active'));
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+        
+        function downloadHTML() {
+            const html = document.documentElement.outerHTML;
+            const blob = new Blob([html], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Panduan_MSIM4206_T3-1_dan_T3-2.html';
+            link.click();
+        }
+        
+        function resetTutorial() {
+            currentSection = 0;
+            showSection(currentSection);
+        }
+        
+        showSection(currentSection);
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') changeSection(-1);
+            if (e.key === 'ArrowRight') changeSection(1);
+        });
+    </script>
+</body>
+</html>
